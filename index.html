@@ -1482,7 +1482,7 @@ function openModuleModal(catId){
   const modes=[
     {icon:'🃏',name:'Flashcards',desc:'Révision rapide par fiches',fn:()=>{closeModal();startModule(catId,'flash');}},
     {icon:'⚡',name:'Quiz Flash (10Q)',desc:'10 questions adaptatives',fn:()=>{closeModal();startModule(catId,'quiz');}},
-    {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();browseFilter=catId;showNav('browse');}},
+    {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();filterBrowse(catId);}},
   ];
   modes.forEach(m=>{
     const el=document.createElement('div');
