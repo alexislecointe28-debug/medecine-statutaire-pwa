@@ -6,7 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MédStat FPT">
-<meta name="theme-color" content="#F8FAFC">
+<meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)">
 <title>Médecine Statutaire FPT</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -14,28 +15,27 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #F8FAFC;
-  --bg2: #FFFFFF;
-  --bg3: #F1F5F9;
-  --card: #FFFFFF;
-  --card2: #F8FAFC;
-  --border: #E2E8F0;
-  --border2: #CBD5E1;
-  --cyan: #0891B2;
-  --cyan2: #0E7490;
-  --cyan-dim: rgba(8,145,178,0.08);
-  --cyan-glow: rgba(8,145,178,0.18);
-  --text: #0F172A;
-  --text2: #475569;
-  --text3: #94A3B8;
-  --green: #059669;
-  --red: #DC2626;
-  --orange: #EA580C;
-  --yellow: #D97706;
-  --purple: #7C3AED;
-  --blue: #2563EB;
-  --r: 14px;
-  --r2: 20px;
+  --bg: #F8FAFC; --bg2: #FFFFFF; --bg3: #F1F5F9;
+  --card: #FFFFFF; --card2: #F8FAFC;
+  --border: #E2E8F0; --border2: #CBD5E1;
+  --cyan: #0891B2; --cyan2: #0E7490;
+  --cyan-dim: rgba(8,145,178,0.08); --cyan-glow: rgba(8,145,178,0.18);
+  --text: #0F172A; --text2: #475569; --text3: #94A3B8;
+  --green: #059669; --red: #DC2626; --orange: #EA580C;
+  --yellow: #D97706; --purple: #7C3AED; --blue: #2563EB;
+  --r: 14px; --r2: 20px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0F172A; --bg2: #1E293B; --bg3: #0F172A;
+    --card: #1E293B; --card2: #0F172A;
+    --border: #334155; --border2: #475569;
+    --cyan: #22D3EE; --cyan2: #06B6D4;
+    --cyan-dim: rgba(34,211,238,0.1); --cyan-glow: rgba(34,211,238,0.2);
+    --text: #F1F5F9; --text2: #94A3B8; --text3: #64748B;
+    --green: #34D399; --red: #F87171; --orange: #FB923C;
+    --yellow: #FCD34D; --purple: #A78BFA; --blue: #60A5FA;
+  }
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%}
@@ -70,7 +70,7 @@ body{
 /* ── HEADER ── */
 .header{
   position:sticky;top:0;z-index:20;
-  background:rgba(248,250,252,.95);backdrop-filter:blur(16px);
+  background:color-mix(in srgb,var(--bg) 95%,transparent);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
   padding:14px 20px 12px;
   display:flex;align-items:center;justify-content:space-between;
@@ -107,7 +107,7 @@ body{
 /* ── NAV ── */
 .nav{
   position:fixed;bottom:0;left:0;right:0;z-index:30;
-  background:rgba(255,255,255,.97);backdrop-filter:blur(20px);
+  background:color-mix(in srgb,var(--card) 97%,transparent);backdrop-filter:blur(20px);
   border-top:1px solid var(--border);
   display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));
 }
@@ -119,6 +119,32 @@ body{
 .nav-item.active{color:var(--cyan);}
 .nav-item svg{width:20px;height:20px;}
 .nav-item span{font-size:10px;font-weight:500;letter-spacing:.03em;}
+
+/* ── ÉCRAN ERREURS ── */
+.error-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:10px;
+  position:relative;overflow:hidden;
+}
+.error-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--red);border-radius:3px 0 0 3px;
+}
+.error-card-cat{font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
+.error-card-q{font-size:13px;font-weight:500;color:var(--text);line-height:1.45;margin-bottom:8px;}
+.error-card-wrong{font-size:11px;color:var(--red);margin-bottom:3px;}
+.error-card-right{font-size:11px;color:var(--green);margin-bottom:6px;}
+.error-card-kp{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;
+  background:var(--bg3);padding:4px 8px;border-radius:6px;line-height:1.4;}
+.error-card-meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.error-card-badge{font-size:10px;font-weight:700;color:var(--red);
+  background:rgba(220,38,38,.08);padding:2px 8px;border-radius:6px;}
+.error-card-retry{font-size:11px;color:var(--cyan);font-weight:600;
+  background:none;border:none;cursor:pointer;padding:0;}
+.errors-empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.errors-empty-icon{font-size:40px;margin-bottom:12px;}
+.errors-empty-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.errors-empty-sub{font-size:13px;line-height:1.5;}
 
 /* ── HOME SCREEN ── */
 .home-hero{
@@ -224,7 +250,7 @@ body{
 .flip-back{
   position:absolute;top:0;left:0;
   transform:rotateY(180deg);
-  background:linear-gradient(160deg,#fff,rgba(8,145,178,.04));
+  background:linear-gradient(160deg,var(--card),var(--cyan-dim));
   border-color:rgba(8,145,178,.2);
 }
 .flip-hint{
@@ -665,7 +691,7 @@ body{
           <div class="dash-kpi-val" id="kpi-today" style="color:#0891B2">0</div>
           <div class="dash-kpi-lbl">questions<br>aujourd'hui</div>
         </div>
-        <div class="dash-kpi">
+        <div class="dash-kpi" onclick="showNav('errors')" style="cursor:pointer">
           <div class="dash-kpi-val" id="kpi-week-err" style="color:#DC2626">0</div>
           <div class="dash-kpi-lbl">erreurs<br>cette semaine</div>
         </div>
@@ -861,6 +887,23 @@ body{
     </div>
   </div>
 
+  <!-- ÉCRAN ERREURS -->
+  <div class="screen" id="screen-errors">
+    <div class="header">
+      <button onclick="resetAndGoHome()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;" aria-label="Accueil">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="#0891B2"/><rect x="14" y="8" width="4" height="16" rx="2" fill="white"/><rect x="8" y="14" width="16" height="4" rx="2" fill="white"/></svg>
+      </button>
+      <div style="flex:1;margin-left:10px"><div class="header-title">Mes erreurs</div></div>
+      <span id="errors-count" style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace"></span>
+    </div>
+    <div style="padding:12px 20px 6px;display:flex;gap:8px;flex-wrap:wrap" id="errors-filters">
+      <button class="filter-chip active" onclick="setErrorsFilter('all')">Toutes</button>
+      <button class="filter-chip" onclick="setErrorsFilter('recent')">Cette semaine</button>
+      <button class="filter-chip" onclick="setErrorsFilter('frequent')">Les plus fréquentes</button>
+    </div>
+    <div id="errors-list" style="padding:0 20px 20px"></div>
+  </div>
+
   <!-- BOTTOM NAV -->
   <nav class="nav">
     <button class="nav-item active" id="nav-home" onclick="showNav('home')">
@@ -872,6 +915,10 @@ body{
     <button class="nav-item" id="nav-revise" onclick="showNav('revise')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
       <span>Réviser</span>
+    </button>
+    <button class="nav-item" id="nav-errors" onclick="showNav('errors')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <span>Erreurs</span>
     </button>
     <button class="nav-item" id="nav-stats" onclick="showNav('stats')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -901,6 +948,7 @@ const GROUPS = [
   { id:'D', label:'Instances & Controle medical',  icon:'⚖️', color:'#7C3AED' },
   { id:'E', label:'Retour a l emploi',             icon:'🔄', color:'#EA580C' },
   { id:'F', label:'Remuneration & Carriere',       icon:'💶', color:'#0369A1' },
+  { id:'G', label:'Cas pratiques',                 icon:'🧩', color:'#0F766E' },
 ];
 
 const CATEGORIES = [
@@ -931,6 +979,7 @@ const CATEGORIES = [
   { id:'carriere',  label:'Droits carriere & maladie',  icon:'📈', color:'#1E40AF', group:'F' },
   { id:'maternite', label:'Conge maternite FPT',        icon:'🤱', color:'#BE185D', group:'F' },
   { id:'divers',    label:'Cas particuliers & Jurisp.', icon:'⚡', color:'#374151', group:'F' },
+  { id:'cas-prat',  label:'Situations concrètes',      icon:'🧩', color:'#0F766E', group:'G' },
 ];
 
 const QUESTIONS = [
@@ -1151,6 +1200,33 @@ const QUESTIONS = [
 { id:'assu4', cat:'assu', q:"Qu'est-ce que la protection sociale complémentaire (PSC) dans la FPT ?", opts:["L'assurance statutaire groupe souscrite par la collectivité", "Participation de l'employeur au financement de la mutuelle agent", "Versement des IJ de la CPAM pendant les arrêts maladie", "Le maintien de traitement prévu par les textes statutaires"], ans:1, expl:"La PSC désigne le dispositif par lequel l'employeur territorial participe financièrement aux cotisations de mutuelle santé ou de prévoyance de ses agents. Depuis 2022, les collectivités ont l'obligation de participer à la PSC de leurs agents.", kp:"PSC = participation employeur à la mutuelle agent" },
 { id:'assu5', cat:'assu', q:"Depuis quand les collectivités territoriales ont-elles l'obligation de contribuer à la PSC de leurs agents ?", opts:["Obligation depuis la loi du 26 janvier 1984", "Obligation depuis 2022 (ordonnance 2021-175 du 17 février 2021)", "Obligation instaurée par la loi de transformation FP 2019", "Obligation existant depuis la création de la FPT"], ans:1, expl:"L'ordonnance n°2021-175 du 17 février 2021 a instauré l'obligation de participation des employeurs publics à la protection sociale complémentaire. La mise en œuvre progressive a débuté en 2022 pour la FPT.", kp:"PSC obligatoire employeur : ordonnance 2021-175" },
 { id:'assu6', cat:'assu', q:"Quelle est la différence entre contrat de prévoyance et assurance statutaire dans la FPT ?", opts:["Deux termes strictement synonymes dans la FPT", "Assurance statutaire = collectivité ; prévoyance = agent (arrêt/invalidité/décès)", "La prévoyance est obligatoire, l'assurance statutaire facultative", "L'assurance statutaire est souscrite directement par l'agent"], ans:1, expl:"L'assurance statutaire est souscrite par la collectivité pour ses risques financiers liés au maintien de traitement. La prévoyance (PSC) est une protection individuelle de l'agent, cofinancée par l'employeur, couvrant l'arrêt de travail, l'invalidité et le décès au-delà des droits statutaires.", kp:"Assurance statutaire = collectivité / Prévoyance = agent" },
+
+// ── CAS PRATIQUES ──
+{ id:'cp1', cat:'cas-prat', q:"Marie, titulaire CNRACL, est en CMO depuis 3 mois et 1 jour. Sa rémunération change-t-elle ?", opts:["Non, elle reste à plein traitement 12 mois","Oui, elle passe au demi-traitement dès le 4e mois","Oui, elle est mise en disponibilité d'office","Non, le CMO dure 12 mois à plein traitement"], ans:1, expl:"Le CMO d'un titulaire est de 3 mois à plein traitement (PT) puis 9 mois à demi-traitement (DT). Au 4e mois, Marie passe automatiquement à demi-traitement, sauf si elle bascule en CLM.", kp:"CMO titulaire : 3 mois PT → demi-traitement dès le 4e mois" },
+{ id:'cp2', cat:'cas-prat', q:"Paul reçoit son arrêt de travail un lundi. Dernier délai pour le transmettre à son employeur ?", opts:["Le lundi soir avant minuit","Le mercredi (48h)","Le vendredi (5 jours ouvrés)","Le mardi matin (24h)"], ans:1, expl:"Le délai légal est de 48 heures suivant la prescription. Un arrêt prescrit le lundi doit être transmis au plus tard le mercredi. Au-delà, l'agent s'expose à un avertissement, puis à une réduction de rémunération en cas de récidive dans les 24 mois.", kp:"Délai transmission arrêt : 48h max" },
+{ id:'cp3', cat:'cas-prat', q:"Sophie tombe malade pendant ses congés annuels. Perd-elle ces jours de congé ?", opts:["Oui, les congés coïncidant avec un arrêt maladie sont perdus","Non, les jours non pris pour cause de maladie doivent être reportés","Seulement si l'arrêt dépasse 7 jours","Seulement en CLM, pas en CMO"], ans:1, expl:"Depuis la loi 2024-364 du 22 avril 2024 (transposition droit européen), l'agent en arrêt maladie pendant ses congés annuels bénéficie du report des jours non pris, quelle que soit la nature du congé maladie.", kp:"Maladie pendant congés → report des jours (loi 2024-364)" },
+{ id:'cp4', cat:'cas-prat', q:"Karim, titulaire en CLM depuis 6 mois, veut s'inscrire à un concours. Le droit lui permet-il ?", opts:["Non, un agent en CLM est considéré inapte","Oui, le CLM n'interdit pas de se présenter à un concours","Seulement avec accord médical préalable","Seulement si le concours est sur dossier"], ans:1, expl:"Un agent en CLM reste en position d'activité. La jurisprudence confirme qu'aucun texte n'interdit à un agent en congé maladie de se présenter à un concours ou examen professionnel.", kp:"CLM = position activité → concours autorisés" },
+{ id:'cp5', cat:'cas-prat', q:"Fatima, contractuelle, a 3 mois d'ancienneté et tombe malade. Son employeur lui maintient-il son traitement ?", opts:["Oui, comme une titulaire","Oui, 1 mois PT + 1 mois DT","Non, les 4 mois requis ne sont pas atteints","Non, il faut 6 mois d'ancienneté"], ans:2, expl:"Pour bénéficier d'un CMO rémunéré par l'employeur, le contractuel doit justifier de 4 mois de services. Avec 3 mois, Fatima n'y a pas droit. Elle peut percevoir les IJ CPAM si elle remplit les conditions Sécurité Sociale.", kp:"CMO contractuel : 4 mois d'ancienneté minimum requis" },
+{ id:'cp6', cat:'cas-prat', q:"Thomas est accidenté sur le trajet domicile-travail. De quel régime relève cet accident ?", opts:["CITIS comme un accident de service","Accident de trajet : régime SS spécifique, distinct du CITIS","CMO ordinaire sans particularité","Aucune protection dans la FPT"], ans:1, expl:"L'accident de trajet (domicile-lieu de travail) est distinct de l'accident de service couvert par le CITIS. Il relève du régime général de la Sécurité Sociale, avec des règles propres distinctes du régime d'imputabilité au service.", kp:"Accident trajet ≠ CITIS : régime SS spécifique" },
+{ id:'cp7', cat:'cas-prat', q:"Claire, titulaire en CLD, se voit refuser son avancement d'échelon par sa collectivité. Est-ce légal ?", opts:["Oui, le CLD suspend tout avancement","Non, le CLD est sans effet sur l'avancement d'échelon et de grade","Oui pour le grade, non pour l'échelon","Seulement si le CLD dépasse 3 ans"], ans:1, expl:"Le temps passé en CLD est pris en compte pour l'avancement d'échelon et de grade. Refuser l'avancement au seul motif du CLD est illégal. La jurisprudence est constante sur ce point.", kp:"CLD : avancement d'échelon et de grade maintenu" },
+{ id:'cp8', cat:'cas-prat', q:"Léa, enceinte et en arrêt depuis sa déclaration de grossesse. Le jour de carence s'applique-t-il ?", opts:["Oui, sauf hospitalisation","Non, aucune carence entre déclaration grossesse et congé maternité","Seulement si l'arrêt dure plus de 3 jours","Oui, remboursé après accouchement"], ans:1, expl:"Exception légale : le jour de carence ne s'applique pas aux arrêts maladie accordés après la déclaration de grossesse et avant le début du congé de maternité. Protection explicitement prévue par la loi.", kp:"Arrêt après déclaration grossesse → zéro jour de carence" },
+{ id:'cp9', cat:'cas-prat', q:"Ahmed refuse la contre-visite médicale mandatée par son employeur. Que risque-t-il ?", opts:["Rien, la contre-visite est facultative","Suspension de rémunération et risque de sanction disciplinaire","Licenciement immédiat","Saisine automatique du Conseil Médical"], ans:1, expl:"Le refus injustifié de se soumettre à une contre-visite peut entraîner la suspension du traitement et des sanctions disciplinaires. L'agent est tenu de se soumettre aux contrôles médicaux demandés par l'administration.", kp:"Refus contre-visite injustifié → suspension traitement + sanction disciplinaire" },
+{ id:'cp10', cat:'cas-prat', q:"Julie reprend après un CLM, mais rechute au bout de 8 mois. A-t-elle droit à un nouveau CLM ?", opts:["Oui, les droits sont immédiatement reconstitués","Non, 1 an de reprise effective est requis","Oui, si la pathologie est différente","Non, les droits CLM ne se reconstituent jamais"], ans:1, expl:"Pour obtenir un nouveau CLM, l'agent doit avoir repris l'exercice de ses fonctions pendant au moins 1 an. Avec 8 mois de reprise, Julie n'a pas reconstitué ses droits à CLM.", kp:"Nouveau CLM : 1 an de reprise effective requis" },
+{ id:'cp11', cat:'cas-prat', q:"Marc est agressé verbalement hors de ses heures de travail, mais en raison de ses fonctions. Protection fonctionnelle ?", opts:["Non, il n'est pas en service","Oui, si lien avec ses fonctions est établi, même hors service","Seulement pour les agressions physiques","Seulement avec dépôt de plainte préalable"], ans:1, expl:"La protection fonctionnelle s'applique dès lors qu'un lien direct et certain avec l'exercice des fonctions est établi, indépendamment du lieu ou du temps de travail. Marc peut en bénéficier s'il est agressé en raison de ses fonctions.", kp:"Protection fonctionnelle hors service : OK si lien fonctions établi" },
+{ id:'cp12', cat:'cas-prat', q:"Nadia, titulaire en CMO, part 3 semaines à l'étranger sans autorisation. Quelles conséquences ?", opts:["Aucune, les déplacements ne sont pas réglementés","Suspension du traitement et risque de sanctions disciplinaires","Licenciement automatique pour fraude","Saisine immédiate du Conseil Médical"], ans:1, expl:"En CMO, l'agent a des obligations : disponibilité pour les contre-visites, respect des plages de présence, interdiction de toute activité non autorisée. Un séjour à l'étranger non autorisé peut entraîner suspension du traitement et poursuites disciplinaires.", kp:"CMO : disponibilité obligatoire — départ non autorisé = sanction" },
+{ id:'cp13', cat:'cas-prat', q:"Pierre a un accident de service. Son IPP est évalué à 12% après consolidation. Quel dispositif ?", opts:["Aucun, seuil minimum de 15% requis","L'ATI (Allocation Temporaire d'Invalidité) versée par la CNRACL","Pension d'invalidité de la CPAM","Prise en charge automatique par le FIPHFP"], ans:1, expl:"L'Allocation Temporaire d'Invalidité (ATI) est versée par la CNRACL au fonctionnaire dont l'IPP est reconnu suite à un accident de service ou une maladie professionnelle. Elle compense les séquelles permanentes.", kp:"Consolidation AT + IPP reconnu → ATI versée par CNRACL" },
+{ id:'cp14', cat:'cas-prat', q:"David a épuisé son CMO sans pouvoir reprendre. Il ne relève pas d'un CLM. Sa situation administrative ?", opts:["Licenciement immédiat pour inaptitude","Disponibilité d'office rémunérée à demi-traitement","Passage automatique en CLD","Congé sans solde de 6 mois"], ans:1, expl:"À l'épuisement des droits à CMO, si l'agent ne relève pas d'un CLM ou CLD et que son état laisse prévoir une amélioration, il est mis en disponibilité d'office pour raison de santé. Il perçoit un demi-traitement non complété par l'employeur.", kp:"CMO épuisé hors CLM → disponibilité d'office (demi-traitement non complété)" },
+{ id:'cp15', cat:'cas-prat', q:"Contractuelle en CDI avec 3 ans d'ancienneté, Isabelle est malade. Quelle est sa protection ?", opts:["3 mois PT + 9 mois DT (comme un titulaire)","2 mois PT + 2 mois DT","3 mois PT + 3 mois DT","1 mois PT + 1 mois DT seulement"], ans:2, expl:"Un contractuel de droit public avec 3 ans de services a droit à 3 mois PT + 3 mois DT. Le barème : 4 mois-2 ans = 1+1 ; 2-3 ans = 2+2 ; 3+ ans = 3+3. Au-delà des droits CMO, le contractuel peut relever du congé de grave maladie (IRCANTEC).", kp:"Contractuel ≥ 3 ans d'ancienneté : 3 mois PT + 3 mois DT" },
+{ id:'cp16', cat:'cas-prat', q:"Isabelle subit un burn-out documenté. Elle veut une reconnaissance en maladie professionnelle. Quelle procédure dans la FPT ?", opts:["Dépôt CPAM comme dans le privé","Demande MOP2 (hors tableau) avec Conseil Médical plénière si IPP ≥ 25%","Saisine directe du Tribunal Administratif","Déclaration d'accident de service"], ans:1, expl:"Le burn-out peut être reconnu comme MOP2 (maladie professionnelle hors tableau) si un lien direct et essentiel avec l'activité est établi et si l'IPP prévisible est ≥ 25%. La reconnaissance passe par le Conseil Médical en formation plénière.", kp:"Burn-out FPT : MOP2, lien direct + IPP ≥ 25% + Conseil Médical plénière" },
+{ id:'cp17', cat:'cas-prat', q:"Un agent est agressé par un collègue sur le lieu de travail. La protection fonctionnelle s'applique-t-elle ?", opts:["Non, elle ne s'applique qu'aux tiers extérieurs","Oui, elle couvre aussi les agressions entre agents","Seulement pour les agressions physiques, pas verbales","Seulement si le collègue est supérieur hiérarchique"], ans:1, expl:"La protection fonctionnelle s'applique quelle que soit l'origine de l'agression : tiers extérieur ou agent de la même collectivité, quel que soit le rapport hiérarchique. L'administration doit protéger ses agents même contre un collègue agresseur.", kp:"Protection fonctionnelle : agression entre collègues aussi couverte" },
+{ id:'cp18', cat:'cas-prat', q:"Céline est en congé maternité. Son supérieur réduit son RIFSEEP au motif de son absence. Est-ce légal ?", opts:["Oui, le RIFSEEP est modulable selon la présence","Oui, si une délibération le prévoit","Non, le RIFSEEP est maintenu obligatoirement pendant la maternité","Non, seulement pour les agents en CDI"], ans:2, expl:"L'article L.714-6 du CGFP impose le maintien du régime indemnitaire dans les mêmes proportions que le traitement pendant le congé de maternité. C'est automatique et obligatoire, l'employeur ne peut pas le réduire.", kp:"RIFSEEP maternité : maintien obligatoire, irréductible (L.714-6 CGFP)" },
+{ id:'cp19', cat:'cas-prat', q:"Un fonctionnaire stagiaire est placé en CLM pendant 5 mois. Impact sur son stage ?", opts:["Aucun impact, stage continue normalement","Stage prolongé de la durée du CLM","Titularisation immédiate pour protéger ses droits","Licenciement pour inaptitude après 3 mois"], ans:1, expl:"Pour un fonctionnaire stagiaire, le CLM prolonge la durée du stage. La titularisation est reportée d'autant. Si le CLM dépasse le 10e de la durée normale du stage (36 jours pour 1 an), le stage est prolongé au-delà.", kp:"Stagiaire en CLM : stage prolongé de la durée du congé" },
+{ id:'cp20', cat:'cas-prat', q:"Premier envoi tardif d'arrêt par un agent titulaire. Sanction immédiate ?", opts:["Réduction de 50% du traitement pour la période de retard","Courrier d'avertissement — pas de sanction financière au 1er manquement","Suspension immédiate du traitement","Aucune, le délai de 48h est indicatif"], ans:1, expl:"Au premier envoi tardif, l'employeur adresse un courrier recommandé informant l'agent du risque de réduction de rémunération en cas de récidive dans les 24 mois. Aucune sanction financière n'est appliquée au premier manquement.", kp:"1er envoi tardif : avertissement courrier uniquement (sanction si récidive)" },
+{ id:'cp21', cat:'cas-prat', q:"Nicolas, titulaire en CITIS, voit son état se consolider avec 8% d'IPP. Quel dispositif s'enclenche ?", opts:["Reprise des fonctions sans indemnisation complémentaire","ATI (Allocation Temporaire d'Invalidité) versée par la CNRACL","Retraite pour invalidité automatique","Rente viagère de la CPAM"], ans:1, expl:"Après consolidation d'un accident de service avec un taux d'IPP reconnu, le fonctionnaire peut percevoir l'Allocation Temporaire d'Invalidité (ATI) versée par la CNRACL, compensant les séquelles permanentes.", kp:"CITIS + consolidation + IPP → ATI CNRACL" },
+{ id:'cp22', cat:'cas-prat', q:"Un contractuel en CDD (2 ans d'ancienneté) est en arrêt. Son contrat expire dans 3 semaines. Le CMO continue-t-il après ?", opts:["Oui, l'administration maintient le contrat jusqu'à guérison","Non, le CMO est limité à la durée restante du contrat","Oui si l'arrêt est lié à un AT/MP reconnu","Oui, le CDD est automatiquement converti en CDI"], ans:1, expl:"Pour un contractuel en CDD, le congé de maladie ne peut pas se prolonger au-delà du terme du contrat. À l'expiration du CDD, le contrat prend fin même si l'arrêt n'est pas terminé. L'agent peut alors percevoir les IJ CPAM directement.", kp:"CMO contractuel CDD : limité à la durée restante du contrat" },
+{ id:'cp23', cat:'cas-prat', q:"Romain est en demi-traitement (800€). La CPAM verse 700€ d'IJ. Sa collectivité doit-elle compléter ?", opts:["Non, la collectivité ne doit rien de plus","Oui, la collectivité verse la différence (100€) pour atteindre le demi-traitement","Oui, la collectivité complète jusqu'au plein traitement","Non, les IJ remplacent entièrement la rémunération"], ans:1, expl:"L'employeur est tenu de maintenir le demi-traitement. Si les IJ (700€) sont inférieures au demi-traitement (800€), la collectivité verse la différence (100€). Si les IJ dépassaient le DT, rien de plus ne serait dû.", kp:"Demi-traitement : employeur verse la différence si DT > IJ" },
+{ id:'cp24', cat:'cas-prat', q:"Sandra est en demi-traitement CLM. La collectivité veut continuer la subrogation. Est-ce possible ?", opts:["Oui, la subrogation est toujours possible en CLM","Non, possible seulement si rémunération maintenue ≥ IJ CPAM","Non, la subrogation est impossible pour les agents CNRACL","Oui, automatiquement en demi-traitement"], ans:1, expl:"La subrogation n'est possible (art. R323-11 CSS) que si le montant de la rémunération maintenue est au moins égal aux IJ. En demi-traitement, les IJ dépassent souvent la rémunération, donc la subrogation n'est généralement plus possible.", kp:"Subrogation : impossible si DT < IJ (cas fréquent en demi-traitement)" },
+{ id:'cp25', cat:'cas-prat', q:"Un agent harcelé moralement par son supérieur demande la protection fonctionnelle. L'administration est-elle obligée de l'accorder ?", opts:["Non, le harcèlement interne ne relève pas de la protection fonctionnelle","Oui, dès lors que les conditions légales sont remplies, l'administration y est obligée","Seulement si une plainte pénale a été déposée","Seulement si le harcèlement est prouvé par le tribunal"], ans:1, expl:"Depuis l'arrêt CE du 12/03/2010 (n°308974), le harcèlement moral ouvre droit à la protection fonctionnelle. Dès que les conditions légales sont réunies (y compris harcèlement par un supérieur), l'administration est obligée d'accorder la protection et de faire cesser les agissements.", kp:"Harcèlement moral → protection fonctionnelle obligatoire (CE 2010)" },
 ];
 
 // ═══════════════════════════════════════════════
@@ -1308,6 +1384,7 @@ function showNav(screen){
   if(screen==='home')refreshQuizHome();
   if(screen==='revise')renderRevise();
   if(screen==='stats')renderStats();
+  if(screen==='errors')renderErrors();
 }
 
 function switchReviseTab(tab){
@@ -1922,6 +1999,19 @@ async function init(){
   statsData.quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
   updateStreak();
   refreshQuizHome();
+
+  // Swipe sur quiz
+  const quizScreen=document.getElementById('screen-quiz');
+  if(quizScreen) initSwipe(quizScreen,
+    ()=>{/* swipe right = pas d'action */},
+    ()=>{if(quizAnswered&&!examMode)nextQuiz();} // swipe left = suivant
+  );
+  // Swipe sur flash
+  const flashScreen=document.getElementById('screen-flash');
+  if(flashScreen) initSwipe(flashScreen,
+    ()=>{if(flashFlipped)rateCard(true);},  // swipe right = maîtrisé
+    ()=>{if(flashFlipped)rateCard(false);}  // swipe left = à revoir
+  );
 
   // Register SW + détection mise à jour
   if('serviceWorker' in navigator){
