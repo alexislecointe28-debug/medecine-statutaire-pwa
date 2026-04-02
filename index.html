@@ -1613,7 +1613,7 @@ async function answerQuiz(chosen,correct){
     // Mode normal : explication enrichie + score de confiance
     const explEl=document.getElementById('qcm-expl');
     explEl.classList.add('show');
-    // Piège enrichi si erreur
+    // Piège enrichi + confiance uniquement sur erreur
     let trapHtml='';
     if(!isCorrect){
       const wrongOpt=q.opts[chosen]||'';
@@ -1621,16 +1621,22 @@ async function answerQuiz(chosen,correct){
     }
     explEl.innerHTML=`<strong>💡 Explication :</strong><br>${q.expl}${q.kp?`<div class="browse-kp">${q.kp}</div>`:''}${trapHtml}`;
 
-    // Boutons de confiance
-    document.getElementById('qcm-next-wrap').innerHTML=`
-      <div class="confidence-wrap">
-        <div class="conf-label">Tu le savais vraiment ?</div>
-        <div class="conf-btns">
-          <button class="conf-btn knew" onclick="applyConfidence('knew',${isCorrect})">✅ Je savais</button>
-          <button class="conf-btn guessed" onclick="applyConfidence('guessed',${isCorrect})">🎲 Deviné</button>
-          <button class="conf-btn wrong" onclick="applyConfidence('wrong',${isCorrect})">❌ Pas sûr</button>
-        </div>
-      </div>`;
+    if(!isCorrect){
+      // Confiance uniquement sur mauvaise réponse
+      document.getElementById('qcm-next-wrap').innerHTML=`
+        <div class="confidence-wrap">
+          <div class="conf-label">Pourquoi cette erreur ?</div>
+          <div class="conf-btns">
+            <button class="conf-btn guessed" onclick="applyConfidence('guessed',false)">🎲 Mal lu</button>
+            <button class="conf-btn wrong" onclick="applyConfidence('wrong',false)">❌ Pas su</button>
+          </div>
+        </div>`;
+    } else {
+      document.getElementById('qcm-next-wrap').innerHTML=`
+        <button class="btn-primary" onclick="nextQuiz()" style="margin-top:4px">
+          ${quizIdx+1<quizQueue.length?'Question suivante →':'Voir les résultats'}
+        </button>`;
+    }
     // Sauvegarder provisoirement sans confiance
     const upd={seen:true,mastered:isCorrect,lastSeen:Date.now(),
       errorCount:(ex.errorCount||0)+(isCorrect?0:1),
