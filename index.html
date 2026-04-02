@@ -87,6 +87,23 @@ body{
 .btn-icon svg{width:16px;height:16px;}
 .logo-btn:active{opacity:.7;}
 
+/* ── BANNIÈRE MISE À JOUR ── */
+.update-banner{
+  position:fixed;bottom:calc(70px + env(safe-area-inset-bottom));left:12px;right:12px;
+  background:#0891B2;color:#fff;border-radius:16px;
+  padding:12px 16px;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 4px 20px rgba(8,145,178,.35);
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.update-banner-text{font-size:13px;font-weight:600;flex:1;}
+.update-banner-btn{
+  background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+  color:#fff;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;
+}
+
 /* ── NAV ── */
 .nav{
   position:fixed;bottom:0;left:0;right:0;z-index:30;
@@ -1876,6 +1893,29 @@ function generateIcon(size){
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
+function showUpdateBanner(){
+  if(document.getElementById('update-banner')) return; // déjà affichée
+  const banner=document.createElement('div');
+  banner.id='update-banner';
+  banner.className='update-banner';
+  banner.innerHTML=`
+    <div class="update-banner-text">✨ Nouvelle version disponible !</div>
+    <button class="update-banner-btn" onclick="applyUpdate()">Mettre à jour</button>`;
+  document.body.appendChild(banner);
+}
+
+function applyUpdate(){
+  window._swUpdating=true;
+  // Demander au nouveau SW de prendre le contrôle
+  navigator.serviceWorker.getRegistration().then(reg=>{
+    if(reg && reg.waiting){
+      reg.waiting.postMessage({type:'SKIP_WAITING'});
+    } else {
+      location.reload();
+    }
+  });
+}
+
 async function init(){
   await openDB();
   prog=await getAllProgress();
@@ -1883,9 +1923,25 @@ async function init(){
   updateStreak();
   refreshQuizHome();
 
-  // Register SW
+  // Register SW + détection mise à jour
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    navigator.serviceWorker.register('/sw.js').then(reg=>{
+      // Vérifier les mises à jour toutes les 30 secondes
+      setInterval(()=>reg.update(), 30000);
+      // Nouveau SW en attente → proposer rechargement
+      reg.addEventListener('updatefound',()=>{
+        const newSW=reg.installing;
+        newSW.addEventListener('statechange',()=>{
+          if(newSW.state==='installed' && navigator.serviceWorker.controller){
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(()=>{});
+    // Rechargement automatique quand le nouveau SW prend le contrôle
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      if(window._swUpdating) location.reload();
+    });
   }
 
   // Generate and cache icons as object URLs
