@@ -682,7 +682,7 @@ body{
             <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
           </svg>
           <div class="dash-title">Médecine Statutaire FPT</div>
-            <div id="app-version" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px"></div>
+            <div id="app-version" onclick="forceUpdate()" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px;cursor:pointer" title="Appuyer pour forcer la mise à jour"></div>
         </div>
         <div class="dash-streak" id="dash-streak" style="display:none">
           <span class="dash-streak-fire">🔥</span>
@@ -2286,7 +2286,6 @@ function showUpdateBanner(){
 
 function applyUpdate(){
   window._swUpdating=true;
-  // Demander au nouveau SW de prendre le contrôle
   navigator.serviceWorker.getRegistration().then(reg=>{
     if(reg && reg.waiting){
       reg.waiting.postMessage({type:'SKIP_WAITING'});
@@ -2294,6 +2293,22 @@ function applyUpdate(){
       location.reload();
     }
   });
+}
+
+async function forceUpdate(){
+  // Supprimer tous les caches SW + désenregistrer + recharger
+  const vEl=document.getElementById('app-version');
+  if(vEl)vEl.textContent='🔄 Mise à jour en cours…';
+  try {
+    // Vider tous les caches
+    const keys=await caches.keys();
+    await Promise.all(keys.map(k=>caches.delete(k)));
+    // Désenregistrer le SW
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(r=>r.unregister()));
+  } catch(e){}
+  // Recharger sans cache
+  location.href=location.href.split('?')[0]+'?v='+Date.now();
 }
 
 async function init(){
