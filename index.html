@@ -566,6 +566,13 @@ body{
       </div>
       <div class="section-label" style="padding:0 0 10px">Par module</div>
       <div class="cat-bars" id="cat-bars"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button onclick="exportProgress()" style="flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">📤 Exporter</button>
+        <label style="flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;">
+          📥 Importer
+          <input type="file" accept=".json" style="display:none" onchange="importProgress(this.files[0]);this.value=''">
+        </label>
+      </div>
       <button class="reset-btn" onclick="confirmReset()">🗑 Réinitialiser la progression</button>
     </div>
   </div>
@@ -858,29 +865,47 @@ const QUESTIONS = [
 ];
 
 // ═══════════════════════════════════════════════
-// INDEXEDDB STORAGE
+// STORAGE — Double écriture IDB + localStorage
+// Les données NE SE PERDENT PAS entre les mises à jour.
+// IDB = stockage principal | localStorage = backup automatique
 // ═══════════════════════════════════════════════
 const DB_NAME='medstat-db', DB_VER=1, STORE='progress';
+const LS_KEY='medstat-progress';
 let db=null;
 
+// ── localStorage helpers ──
+function lsRead(){
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch{return {};}
+}
+function lsWrite(map){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(map));}catch{}
+}
+
+// ── IndexedDB : ouvrir + restaurer depuis localStorage si IDB vide ──
 function openDB(){
   return new Promise((res,rej)=>{
     const r=indexedDB.open(DB_NAME,DB_VER);
     r.onupgradeneeded=e=>{e.target.result.createObjectStore(STORE,{keyPath:'id'});};
-    r.onsuccess=e=>{db=e.target.result;res(db);};
+    r.onsuccess=async e=>{
+      db=e.target.result;
+      // Si IDB vide, restaurer depuis le backup localStorage
+      const all=await _idbGetAll();
+      if(Object.keys(all).length===0){
+        const backup=lsRead();
+        if(Object.keys(backup).length>0){
+          console.log('[MedStat] Restauration depuis backup localStorage :',Object.keys(backup).length,'entrées');
+          for(const [id,data] of Object.entries(backup)){
+            await _idbPut(id,data);
+          }
+        }
+      }
+      res(db);
+    };
     r.onerror=()=>rej(r.error);
   });
 }
-function getProgress(id){
-  return new Promise(res=>{
-    if(!db){res(null);return;}
-    const tx=db.transaction(STORE,'readonly');
-    const r=tx.objectStore(STORE).get(id);
-    r.onsuccess=()=>res(r.result||null);
-    r.onerror=()=>res(null);
-  });
-}
-function setProgress(id,data){
+
+function _idbPut(id,data){
   return new Promise(res=>{
     if(!db){res();return;}
     const tx=db.transaction(STORE,'readwrite');
@@ -889,27 +914,84 @@ function setProgress(id,data){
     tx.onerror=()=>res();
   });
 }
-function getAllProgress(){
+function _idbGetAll(){
   return new Promise(res=>{
     if(!db){res({});return;}
     const tx=db.transaction(STORE,'readonly');
     const r=tx.objectStore(STORE).getAll();
-    r.onsuccess=()=>{
-      const m={};
-      r.result.forEach(x=>{m[x.id]=x;});
-      res(m);
-    };
+    r.onsuccess=()=>{const m={};r.result.forEach(x=>{m[x.id]=x;});res(m);};
     r.onerror=()=>res({});
   });
 }
-function clearProgress(){
-  return new Promise(res=>{
+
+// ── API publique : double écriture systématique ──
+async function setProgress(id,data){
+  // 1. IDB
+  await _idbPut(id,data);
+  // 2. localStorage backup (mis à jour atomiquement)
+  const map=lsRead();
+  map[id]=data;
+  lsWrite(map);
+}
+
+async function getAllProgress(){
+  const idb=await _idbGetAll();
+  // Merge IDB + localStorage (IDB est autoritaire, LS comble les trous)
+  const ls=lsRead();
+  const merged={...ls,...idb};
+  return merged;
+}
+
+async function clearProgress(){
+  // Effacer IDB
+  await new Promise(res=>{
     if(!db){res();return;}
     const tx=db.transaction(STORE,'readwrite');
     tx.objectStore(STORE).clear();
     tx.oncomplete=()=>res();
     tx.onerror=()=>res();
   });
+  // Effacer localStorage backup
+  localStorage.removeItem(LS_KEY);
+}
+
+// ── Export / Import JSON ──
+function exportProgress(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    quizzes:parseInt(localStorage.getItem('medstat-quizzes')||'0'),
+    progress:lsRead()
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='medstat-progression-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+async function importProgress(file){
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(!data.progress||typeof data.progress!=='object') throw new Error('Format invalide');
+    const count=Object.keys(data.progress).length;
+    if(!confirm(`Importer ${count} entrées de progression ? Cela remplacera ta progression actuelle.`)) return;
+    // Restaurer IDB + LS
+    await clearProgress();
+    lsWrite(data.progress);
+    for(const [id,entry] of Object.entries(data.progress)){
+      await _idbPut(id,entry);
+    }
+    if(data.quizzes) localStorage.setItem('medstat-quizzes',data.quizzes);
+    prog=await getAllProgress();
+    alert(`\u2705 ${count} entrées importées !`);
+    renderStats();
+    refreshHome();
+  }catch(e){
+    alert('Erreur import : '+e.message);
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1320,8 +1402,8 @@ async function renderStats(){
 }
 
 async function confirmReset(){
-  if(confirm('Réinitialiser toute la progression ?')){
-    await clearProgress();
+  if(confirm('Réinitialiser toute la progression ? Cette action est irréversible.')){
+    await clearProgress(); // efface IDB + localStorage backup
     prog={};
     localStorage.removeItem('medstat-quizzes');
     statsData.quizzes=0;
