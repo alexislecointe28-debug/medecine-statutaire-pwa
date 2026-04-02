@@ -447,15 +447,15 @@ body{
         <div class="qb-title">Flashcards</div>
         <div class="qb-sub">Toutes les fiches</div>
       </div>
-      <div class="quick-btn" onclick="startAll('quiz')">
-        <div class="qb-icon">🎯</div>
-        <div class="qb-title">Quiz complet</div>
-        <div class="qb-sub">QCM en mode examen</div>
+      <div class="quick-btn accent" onclick="startAll('quiz')">
+        <div class="qb-icon">⚡</div>
+        <div class="qb-title">Quiz Flash</div>
+        <div class="qb-sub">10 questions adaptatives</div>
       </div>
       <div class="quick-btn" onclick="startAll('weak')">
         <div class="qb-icon">🔥</div>
         <div class="qb-title">Points faibles</div>
-        <div class="qb-sub">Cartes non maîtrisées</div>
+        <div class="qb-sub">10Q ciblées sur tes erreurs</div>
       </div>
       <div class="quick-btn" onclick="showNav('browse')">
         <div class="qb-icon">📋</div>
@@ -943,6 +943,7 @@ async function refreshHome(){
   const total=QUESTIONS.length;
   const ok=Object.values(prog).filter(p=>p.mastered).length;
   document.getElementById('s-total').textContent=total;
+  const errors=Object.values(prog).filter(p=>!p.mastered&&p.seen).length;
   document.getElementById('s-ok').textContent=ok;
   document.getElementById('s-pct').textContent=Math.round(ok/total*100)+'%';
   renderModuleGrid();
@@ -993,7 +994,7 @@ function openModuleModal(catId){
   list.innerHTML='';
   const modes=[
     {icon:'🃏',name:'Flashcards',desc:'Révision rapide par fiches',fn:()=>{closeModal();startModule(catId,'flash');}},
-    {icon:'🎯',name:'Quiz QCM',desc:'Questions à choix multiples',fn:()=>{closeModal();startModule(catId,'quiz');}},
+    {icon:'⚡',name:'Quiz Flash (10Q)',desc:'10 questions adaptatives',fn:()=>{closeModal();startModule(catId,'quiz');}},
     {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();filterBrowse(catId);}},
   ];
   modes.forEach(m=>{
@@ -1012,23 +1013,61 @@ function closeModal(){document.getElementById('module-modal').classList.remove('
 // ═══════════════════════════════════════════════
 function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
 
+// ── Répétition espacée : calcul du poids de chaque question ──
+function getWeight(q){
+  const p=prog[q.id];
+  if(!p) return 10; // jamais vue → priorité max
+  const days=(Date.now()-p.lastSeen)/86400000;
+  const errors=p.errorCount||0;
+  if(!p.mastered){
+    // Non maîtrisée : plus d'erreurs = poids plus élevé
+    return Math.min(6+errors*2, 16);
+  }
+  // Maîtrisée : révision espacée
+  if(days<1) return 1;
+  if(days<3) return 2;
+  if(days<7) return 3;
+  return 5; // > 1 semaine : à retravailler
+}
+
+// ── Sélection aléatoire pondérée (weighted random) ──
+function selectAdaptive(pool, n){
+  const avail=[...pool];
+  const selected=[];
+  while(selected.length < Math.min(n, avail.length)){
+    const weights=avail.map(q=>getWeight(q));
+    const total=weights.reduce((a,b)=>a+b,0);
+    let r=Math.random()*total;
+    let idx=avail.length-1;
+    for(let i=0;i<weights.length;i++){r-=weights[i];if(r<=0){idx=i;break;}}
+    selected.push(avail.splice(idx,1)[0]);
+  }
+  return selected;
+}
+
 function startAll(mode){
-  if(mode==='weak'){
-    const weak=QUESTIONS.filter(q=>!prog[q.id]?.mastered);
-    if(weak.length===0){alert('Bravo ! Toutes les fiches sont maîtrisées. Réinitialisez pour recommencer.');return;}
-    startFlash(weak,'Points faibles','Questions non maîtrisées');
-  } else if(mode==='flash'){
+  if(mode==='flash'){
     startFlash(QUESTIONS,'Flashcards','Toutes les fiches');
   } else if(mode==='quiz'){
-    startQuiz(QUESTIONS,'Quiz complet','Toutes les fiches');
+    const sel=selectAdaptive(QUESTIONS,10);
+    startQuiz(sel,'Quiz Flash','10 questions adaptatives');
+  } else if(mode==='weak'){
+    const weak=QUESTIONS.filter(q=>!prog[q.id]?.mastered);
+    if(weak.length===0){alert('Toutes les fiches sont maîtrisées ! Réinitialisez pour recommencer.');return;}
+    const sel=selectAdaptive(weak,10);
+    startQuiz(sel,'Points faibles',`${Math.min(10,weak.length)} questions ciblées`);
   }
 }
 
 function startModule(catId,mode){
   const qs=QUESTIONS.filter(q=>q.cat===catId);
   const cat=CATEGORIES.find(c=>c.id===catId);
-  if(mode==='flash')startFlash(qs,cat.label,`${qs.length} fiches`);
-  else startQuiz(qs,cat.label,`${qs.length} fiches`);
+  if(mode==='flash') startFlash(qs,cat.label,`${qs.length} fiches`);
+  else {
+    const sel=qs.length<=10?shuffle(qs):selectAdaptive(qs,10);
+    const sub=qs.length<=10?`${qs.length} questions`:'10 questions adaptatives';
+    startQuiz(sel,cat.label,sub);
+  }
 }
 
 function startFlash(qs,title,sub){
@@ -1070,8 +1109,12 @@ function flipCard(){
 async function rateCard(correct){
   const q=flashQueue[flashIdx];
   if(correct)flashCorrect++;
-  await setProgress(q.id,{seen:true,mastered:correct,lastSeen:Date.now()});
-  prog[q.id]={seen:true,mastered:correct,lastSeen:Date.now()};
+  const ex=prog[q.id]||{};
+  const upd={seen:true,mastered:correct,lastSeen:Date.now(),
+    errorCount:(ex.errorCount||0)+(correct?0:1),
+    correctCount:(ex.correctCount||0)+(correct?1:0)};
+  await setProgress(q.id,upd);
+  prog[q.id]=upd;
   flashIdx++;
   if(flashIdx>=flashQueue.length){
     showFlashResult();
@@ -1094,7 +1137,8 @@ function showFlashResult(){
       <div class="result-title">${pct>=80?'Excellent !':pct>=50?'Bon travail !':'Continue !'}</div>
       <div class="result-sub">${flashCorrect}/${flashQueue.length} fiches maîtrisées (${pct}%)</div>
       <div style="width:100%;max-width:340px;margin-top:8px;display:flex;flex-direction:column;gap:10px;">
-        <button class="btn-primary" onclick="startAll('weak')">🔥 Retravailler les points faibles</button>
+        <button class="btn-primary" onclick="startAll('quiz')">⚡ Quiz Flash adaptatif</button>
+        <button class="btn-secondary" onclick="startAll('weak')" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:var(--red)">🔥 Cibler mes erreurs</button>
         <button class="btn-secondary" onclick="showNav('home')">Retour à l'accueil</button>
       </div>
     </div>
@@ -1154,8 +1198,12 @@ async function answerQuiz(chosen,correct){
   });
   document.getElementById('qcm-expl').classList.add('show');
   const q=quizQueue[quizIdx];
-  await setProgress(q.id,{seen:true,mastered:isCorrect,lastSeen:Date.now()});
-  prog[q.id]={seen:true,mastered:isCorrect,lastSeen:Date.now()};
+  const ex=prog[q.id]||{};
+  const upd={seen:true,mastered:isCorrect,lastSeen:Date.now(),
+    errorCount:(ex.errorCount||0)+(isCorrect?0:1),
+    correctCount:(ex.correctCount||0)+(isCorrect?1:0)};
+  await setProgress(q.id,upd);
+  prog[q.id]=upd;
   document.getElementById('qcm-next-wrap').innerHTML=`
     <button class="btn-primary" onclick="nextQuiz()" style="margin-top:4px">
       ${quizIdx+1<quizQueue.length?'Question suivante →':'Voir les résultats'}
@@ -1181,7 +1229,8 @@ function showQuizResult(){
       <div class="score-label">${quizScore}/${quizQueue.length} bonnes réponses</div>
       <div style="margin-top:8px;font-size:13px;color:var(--text2)">${pct>=80?'🏆 Excellent niveau !':pct>=50?'👍 Bonne progression !':'💪 Continuez les révisions !'}</div>
     </div>
-    <button class="btn-primary" onclick="startAll('weak')">🔥 Travailler les points faibles</button>
+    <button class="btn-primary" onclick="startAll('quiz')">⚡ Nouveau Quiz Flash</button>
+    <button class="btn-secondary" onclick="startAll('weak')" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:var(--red)">🔥 Cibler mes erreurs</button>
     <button class="btn-secondary" onclick="showNav('home')">Retour à l'accueil</button>
   `;
   document.getElementById('quiz-prog').style.width='100%';
