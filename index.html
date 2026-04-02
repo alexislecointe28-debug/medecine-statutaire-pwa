@@ -980,7 +980,7 @@ body{
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const APP_VERSION = 'v2.1 · 02/04/2026 · #132746';
+const APP_VERSION = 'v2.1 · 02/04/2026 · #132958';
 const Q_COUNT = 209;
 
 // ═══════════════════════════════════════════════
@@ -2296,19 +2296,18 @@ function applyUpdate(){
 }
 
 async function forceUpdate(){
-  // Supprimer tous les caches SW + désenregistrer + recharger
   const vEl=document.getElementById('app-version');
-  if(vEl)vEl.textContent='🔄 Mise à jour en cours…';
-  try {
-    // Vider tous les caches
+  if(vEl){vEl.textContent='🔄 Mise à jour…';vEl.style.pointerEvents='none';}
+  try{
+    // 1. Vider tous les caches SW
     const keys=await caches.keys();
     await Promise.all(keys.map(k=>caches.delete(k)));
-    // Désenregistrer le SW
+    // 2. Désenregistrer le SW pour repartir propre
     const regs=await navigator.serviceWorker.getRegistrations();
     await Promise.all(regs.map(r=>r.unregister()));
-  } catch(e){}
-  // Recharger sans cache
-  location.href=location.href.split('?')[0]+'?v='+Date.now();
+  }catch(e){}
+  // 3. Recharger — fetch direct réseau, pas de redirect (évite le CDN edge cache)
+  window.location.replace(window.location.pathname);
 }
 
 async function init(){
