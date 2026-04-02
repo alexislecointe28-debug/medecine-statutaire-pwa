@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MédStat FPT">
+<meta name="theme-color" content="#080D1A">
+<title>Médecine Statutaire FPT</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080D1A;
+  --bg2: #0D1425;
+  --bg3: #111827;
+  --card: #141B2D;
+  --card2: #1A2234;
+  --border: #1E2940;
+  --border2: #243050;
+  --cyan: #2DD4BF;
+  --cyan2: #14B8A6;
+  --cyan-dim: rgba(45,212,191,0.12);
+  --cyan-glow: rgba(45,212,191,0.25);
+  --text: #E8EDF5;
+  --text2: #94A3B8;
+  --text3: #64748B;
+  --green: #34D399;
+  --red: #F87171;
+  --orange: #FB923C;
+  --yellow: #FBBF24;
+  --purple: #A78BFA;
+  --blue: #60A5FA;
+  --r: 14px;
+  --r2: 20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100%;
+  overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── TYPOGRAPHY ── */
+.mono{font-family:'DM Mono',monospace;}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.badge-cyan{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(45,212,191,.2);}
+.badge-green{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2);}
+.badge-orange{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.2);}
+.badge-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.badge-blue{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2);}
+.badge-red{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;padding-bottom:80px;}
+.screen.active{display:flex;}
+
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;z-index:20;
+  background:rgba(8,13,26,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.header-title{font-size:15px;font-weight:600;color:var(--text);}
+.header-sub{font-size:12px;color:var(--text2);margin-top:1px;}
+.btn-icon{
+  width:36px;height:36px;border-radius:10px;border:none;
+  background:var(--card2);cursor:pointer;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.btn-icon:active{transform:scale(.93);}
+.btn-icon svg{width:16px;height:16px;}
+
+/* ── NAV ── */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  background:rgba(8,13,26,.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:4px 0;
+  border:none;background:none;color:var(--text3);transition:color .15s;
+}
+.nav-item.active{color:var(--cyan);}
+.nav-item svg{width:20px;height:20px;}
+.nav-item span{font-size:10px;font-weight:500;letter-spacing:.03em;}
+
+/* ── HOME SCREEN ── */
+.home-hero{
+  padding:28px 20px 0;
+  background:linear-gradient(180deg,rgba(45,212,191,.04) 0%,transparent 100%);
+}
+.home-logo{
+  width:52px;height:52px;border-radius:16px;
+  background:linear-gradient(135deg,var(--cyan2),#0891B2);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+  box-shadow:0 0 24px rgba(45,212,191,.3);
+}
+.home-logo svg{width:28px;height:28px;color:white;}
+.home-title{font-size:24px;font-weight:700;line-height:1.2;margin-bottom:6px;}
+.home-title span{color:var(--cyan);}
+.home-desc{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:20px;}
+.stats-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  padding:16px 20px;
+}
+.stat-pill{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 10px;text-align:center;
+}
+.stat-pill .val{font-size:20px;font-weight:700;color:var(--cyan);}
+.stat-pill .lbl{font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+.section-label{
+  font-size:11px;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:0 20px 10px;
+}
+.module-grid{display:flex;flex-direction:column;gap:10px;padding:0 20px 16px;}
+.module-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:16px;cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;gap:14px;
+}
+.module-card:active{transform:scale(.98);border-color:var(--border2);}
+.module-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:20px;
+}
+.module-info{flex:1;min-width:0;}
+.module-name{font-size:14px;font-weight:600;margin-bottom:3px;}
+.module-meta{font-size:12px;color:var(--text2);}
+.module-prog{
+  display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;
+}
+.prog-ring{position:relative;width:36px;height:36px;}
+.prog-ring svg{transform:rotate(-90deg);}
+.prog-ring .ring-bg{stroke:var(--border2);}
+.prog-ring .ring-fill{stroke:var(--cyan);stroke-linecap:round;transition:stroke-dashoffset .4s;}
+.prog-ring .ring-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;color:var(--text2);font-family:'DM Mono',monospace;
+}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 24px;}
+.quick-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:16px;cursor:pointer;transition:all .2s;text-align:left;
+}
+.quick-btn:active{transform:scale(.97);}
+.quick-btn .qb-icon{font-size:22px;margin-bottom:8px;}
+.quick-btn .qb-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.quick-btn .qb-sub{font-size:11px;color:var(--text3);}
+.quick-btn.accent{
+  background:linear-gradient(135deg,rgba(45,212,191,.15),rgba(8,145,178,.1));
+  border-color:rgba(45,212,191,.25);
+}
+
+/* ── CARDS / FLASHCARDS ── */
+.flash-header{padding:16px 20px;}
+.flash-progress-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.flash-prog-bar{
+  flex:1;height:4px;border-radius:99px;background:var(--border2);overflow:hidden;
+}
+.flash-prog-fill{height:100%;border-radius:99px;background:var(--cyan);transition:width .3s;}
+.flash-counter{font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);}
+.flash-category{display:flex;align-items:center;gap:8px;}
+.flash-arena{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:0 20px;gap:20px;
+}
+.flip-card{
+  width:100%;max-width:420px;
+  perspective:1000px;cursor:pointer;
+}
+.flip-inner{
+  position:relative;width:100%;
+  transform-style:preserve-3d;
+  transition:transform .45s cubic-bezier(.4,0,.2,1);
+  border-radius:var(--r2);
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{
+  width:100%;border-radius:var(--r2);
+  border:1px solid var(--border);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);
+  padding:28px 22px;
+}
+.flip-back{
+  position:absolute;top:0;left:0;
+  transform:rotateY(180deg);
+  background:linear-gradient(160deg,var(--card),rgba(45,212,191,.05));
+  border-color:rgba(45,212,191,.2);
+}
+.flip-hint{
+  font-size:10px;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;
+  align-items:center;gap:5px;
+}
+.flip-hint svg{width:12px;height:12px;}
+.flip-q{font-size:16px;font-weight:500;line-height:1.55;color:var(--text);}
+.flip-a{font-size:15px;font-weight:400;line-height:1.6;color:var(--text);}
+.key-point{
+  margin-top:14px;padding:10px 14px;border-radius:10px;
+  background:var(--cyan-dim);border-left:3px solid var(--cyan);
+  font-size:13px;color:var(--cyan);font-family:'DM Mono',monospace;font-weight:500;
+}
+.flash-actions{display:flex;gap:10px;width:100%;max-width:420px;}
+.flash-btn{
+  flex:1;padding:14px;border-radius:14px;border:1px solid;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.flash-btn:active{transform:scale(.97);}
+.flash-btn-no{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2);color:var(--red);}
+.flash-btn-yes{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2);color:var(--green);}
+.flash-btn-next{
+  background:var(--card2);border-color:var(--border2);color:var(--text);
+  width:48px;flex:none;
+}
+.flash-tip{
+  font-size:12px;color:var(--text3);text-align:center;
+  padding-bottom:8px;
+}
+
+/* ── QCM ── */
+.qcm-wrap{padding:0 20px 24px;display:flex;flex-direction:column;gap:14px;}
+.qcm-question{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:20px;font-size:15px;font-weight:500;line-height:1.55;
+}
+.qcm-options{display:flex;flex-direction:column;gap:8px;}
+.qcm-opt{
+  background:var(--card2);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;cursor:pointer;font-size:14px;line-height:1.45;
+  display:flex;align-items:flex-start;gap:10px;transition:all .18s;
+}
+.qcm-opt:active{transform:scale(.99);}
+.qcm-opt .opt-idx{
+  width:22px;height:22px;border-radius:6px;flex-shrink:0;
+  background:var(--border2);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text2);
+  margin-top:1px;
+}
+.qcm-opt.correct{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);}
+.qcm-opt.correct .opt-idx{background:var(--green);color:#000;}
+.qcm-opt.wrong{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25);}
+.qcm-opt.wrong .opt-idx{background:var(--red);color:#fff;}
+.qcm-opt.disabled{cursor:default;opacity:.6;}
+.qcm-expl{
+  background:linear-gradient(135deg,rgba(45,212,191,.07),rgba(8,145,178,.04));
+  border:1px solid rgba(45,212,191,.15);border-radius:var(--r);
+  padding:14px 16px;font-size:13px;line-height:1.55;color:var(--text2);
+  display:none;
+}
+.qcm-expl.show{display:block;}
+.qcm-expl strong{color:var(--cyan);}
+.qcm-score-card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:24px 20px;text-align:center;
+}
+.score-big{font-size:52px;font-weight:800;font-family:'DM Mono',monospace;}
+.score-big.great{color:var(--green);}
+.score-big.ok{color:var(--yellow);}
+.score-big.bad{color:var(--red);}
+.score-label{font-size:14px;color:var(--text2);margin-top:4px;}
+.btn-primary{
+  width:100%;padding:15px;border-radius:var(--r);border:none;
+  background:linear-gradient(135deg,var(--cyan2),#0891B2);
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 4px 16px rgba(45,212,191,.25);
+}
+.btn-primary:active{transform:scale(.98);}
+.btn-secondary{
+  width:100%;padding:15px;border-radius:var(--r);
+  border:1px solid var(--border2);background:var(--card2);
+  color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;
+}
+.btn-secondary:active{transform:scale(.98);}
+
+/* ── BROWSE ── */
+.browse-filters{
+  display:flex;gap:8px;padding:16px 20px 0;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.browse-filters::-webkit-scrollbar{display:none;}
+.filter-chip{
+  flex-shrink:0;padding:7px 14px;border-radius:99px;
+  border:1px solid var(--border2);background:var(--card2);
+  font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.filter-chip.active{background:var(--cyan-dim);border-color:rgba(45,212,191,.3);color:var(--cyan);}
+.browse-list{padding:12px 20px 8px;display:flex;flex-direction:column;gap:8px;}
+.browse-item{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;
+}
+.browse-q{
+  padding:14px 16px;font-size:14px;font-weight:500;line-height:1.45;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+}
+.browse-q .chev{width:16px;height:16px;color:var(--text3);flex-shrink:0;margin-top:2px;transition:transform .2s;}
+.browse-item.open .chev{transform:rotate(90deg);}
+.browse-a{
+  display:none;padding:0 16px 14px;
+  font-size:13px;line-height:1.6;color:var(--text2);
+  border-top:1px solid var(--border);padding-top:12px;
+}
+.browse-item.open .browse-a{display:block;}
+.browse-kp{
+  margin-top:10px;padding:8px 12px;border-radius:8px;
+  background:var(--cyan-dim);font-size:12px;color:var(--cyan);
+  font-family:'DM Mono',monospace;font-weight:500;
+}
+
+/* ── STATS ── */
+.stats-screen{padding:20px;}
+.stats-title{font-size:18px;font-weight:700;margin-bottom:16px;}
+.global-ring-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:24px;}
+.global-ring{position:relative;width:120px;height:120px;}
+.global-ring svg{transform:rotate(-90deg);}
+.global-ring .ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.ring-pct{font-size:26px;font-weight:800;font-family:'DM Mono',monospace;color:var(--cyan);}
+.ring-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.stats-tile{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:16px;
+}
+.stats-tile .val{font-size:24px;font-weight:800;font-family:'DM Mono',monospace;}
+.stats-tile .lbl{font-size:11px;color:var(--text3);margin-top:3px;}
+.cat-bars{display:flex;flex-direction:column;gap:12px;}
+.cat-bar-item{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.cat-bar-top{display:flex;justify-content:space-between;margin-bottom:8px;}
+.cat-bar-name{font-size:13px;font-weight:500;}
+.cat-bar-pct{font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);}
+.cat-bar-track{height:5px;border-radius:99px;background:var(--border2);}
+.cat-bar-fill{height:100%;border-radius:99px;background:var(--cyan);transition:width .4s .1s;}
+.reset-btn{
+  margin-top:16px;padding:13px;border-radius:var(--r);
+  border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.06);
+  color:var(--red);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;width:100%;transition:all .15s;
+}
+.reset-btn:active{transform:scale(.98);}
+
+/* ── RESULT SCREEN ── */
+.result-screen{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px 20px;gap:20px;text-align:center;
+}
+.result-emoji{font-size:64px;line-height:1;}
+.result-title{font-size:22px;font-weight:700;}
+.result-sub{font-size:14px;color:var(--text2);max-width:280px;}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-sheet{
+  width:100%;background:var(--bg2);
+  border-radius:24px 24px 0 0;border-top:1px solid var(--border);
+  padding:24px 20px max(24px,env(safe-area-inset-bottom));
+  transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  max-height:80vh;overflow-y:auto;
+}
+.modal-overlay.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border2);margin:0 auto 20px;}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:16px;}
+.mode-list{display:flex;flex-direction:column;gap:10px;}
+.mode-item{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;cursor:pointer;display:flex;gap:14px;align-items:center;
+  transition:all .15s;
+}
+.mode-item:active{border-color:var(--cyan-glow);}
+.mode-icon{font-size:24px;}
+.mode-info .mode-name{font-size:14px;font-weight:600;}
+.mode-info .mode-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .3s ease both;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulse 1.8s infinite;}
+
+/* iOS safe areas */
+.screen{padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div class="screen active" id="screen-home">
+    <div class="home-hero">
+      <div class="home-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 12h6m-3-3v6M7.8 21A7 7 0 1 1 21 12.2"/>
+          <path d="M17 17l4 4"/>
+        </svg>
+      </div>
+      <h1 class="home-title">Médecine<br><span>Statutaire FPT</span></h1>
+      <p class="home-desc">Droits maladie · Fonction Publique Territoriale · Titulaires & Contractuels</p>
+    </div>
+
+    <div class="stats-bar" id="home-stats">
+      <div class="stat-pill"><div class="val" id="s-total">0</div><div class="lbl">Questions</div></div>
+      <div class="stat-pill"><div class="val" id="s-ok">0</div><div class="lbl">Maîtrisées</div></div>
+      <div class="stat-pill"><div class="val" id="s-pct">0%</div><div class="lbl">Progression</div></div>
+    </div>
+
+    <div class="section-label" style="padding-top:4px">Modules</div>
+    <div class="module-grid" id="module-grid"></div>
+
+    <div class="section-label">Modes de révision</div>
+    <div class="quick-actions">
+      <div class="quick-btn accent" onclick="startAll('flash')">
+        <div class="qb-icon">🃏</div>
+        <div class="qb-title">Flashcards</div>
+        <div class="qb-sub">Toutes les fiches</div>
+      </div>
+      <div class="quick-btn" onclick="startAll('quiz')">
+        <div class="qb-icon">🎯</div>
+        <div class="qb-title">Quiz complet</div>
+        <div class="qb-sub">QCM en mode examen</div>
+      </div>
+      <div class="quick-btn" onclick="startAll('weak')">
+        <div class="qb-icon">🔥</div>
+        <div class="qb-title">Points faibles</div>
+        <div class="qb-sub">Cartes non maîtrisées</div>
+      </div>
+      <div class="quick-btn" onclick="showNav('browse')">
+        <div class="qb-icon">📋</div>
+        <div class="qb-title">Parcourir</div>
+        <div class="qb-sub">Toutes les fiches</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="screen" id="screen-flash">
+    <div class="header">
+      <div>
+        <div class="header-title" id="flash-title">Flashcards</div>
+        <div class="header-sub" id="flash-subtitle"></div>
+      </div>
+      <button class="btn-icon" onclick="showNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="flash-header">
+      <div class="flash-progress-row">
+        <div class="flash-prog-bar"><div class="flash-prog-fill" id="flash-prog"></div></div>
+        <span class="flash-counter mono" id="flash-counter">0/0</span>
+      </div>
+      <div class="flash-category" id="flash-cat-badge"></div>
+    </div>
+    <div class="flash-arena">
+      <div class="flip-card" id="flip-card" onclick="flipCard()">
+        <div class="flip-inner" id="flip-inner">
+          <div class="flip-face flip-front">
+            <div class="flip-hint">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+              Question
+            </div>
+            <div class="flip-q" id="flip-q">—</div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="flip-hint" style="color:var(--cyan)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              Réponse
+            </div>
+            <div class="flip-a" id="flip-a">—</div>
+            <div class="key-point mono" id="flip-kp" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flash-tip" id="flash-tip">Toucher la carte pour révéler la réponse</div>
+      <div class="flash-actions" id="flash-btns" style="display:none">
+        <button class="flash-btn flash-btn-no" onclick="rateCard(false)">❌ À revoir</button>
+        <button class="flash-btn flash-btn-yes" onclick="rateCard(true)">✅ Maîtrisé</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QCM -->
+  <div class="screen" id="screen-quiz">
+    <div class="header">
+      <div>
+        <div class="header-title" id="quiz-title">Quiz</div>
+        <div class="header-sub" id="quiz-subtitle"></div>
+      </div>
+      <button class="btn-icon" onclick="showNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div style="padding:12px 20px 0;">
+      <div class="flash-progress-row">
+        <div class="flash-prog-bar"><div class="flash-prog-fill" id="quiz-prog"></div></div>
+        <span class="flash-counter mono" id="quiz-counter">0/0</span>
+      </div>
+    </div>
+    <div class="qcm-wrap" id="qcm-content"></div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="screen" id="screen-browse">
+    <div class="header">
+      <div><div class="header-title">Parcourir</div><div class="header-sub" id="browse-count"></div></div>
+    </div>
+    <div class="browse-filters" id="browse-filters"></div>
+    <div class="browse-list" id="browse-list"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="screen" id="screen-stats">
+    <div class="header"><div class="header-title">Progression</div></div>
+    <div class="stats-screen">
+      <div class="stats-title">Tableau de bord</div>
+      <div class="global-ring-wrap">
+        <div class="global-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke-width="8" class="ring-bg"/>
+            <circle cx="60" cy="60" r="52" fill="none" stroke-width="8" stroke="var(--cyan)" stroke-linecap="round"
+              id="global-ring-fill" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="global-pct">0%</div>
+            <div class="ring-lbl">maîtrisé</div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stats-tile"><div class="val" id="st-total">0</div><div class="lbl">Total fiches</div></div>
+        <div class="stats-tile"><div class="val green" id="st-ok" style="color:var(--green)">0</div><div class="lbl">Maîtrisées</div></div>
+        <div class="stats-tile"><div class="val" id="st-seen" style="color:var(--yellow)">0</div><div class="lbl">Vues</div></div>
+        <div class="stats-tile"><div class="val" id="st-streak" style="color:var(--orange)">0</div><div class="lbl">Quiz terminés</div></div>
+      </div>
+      <div class="section-label" style="padding:0 0 10px">Par module</div>
+      <div class="cat-bars" id="cat-bars"></div>
+      <button class="reset-btn" onclick="confirmReset()">🗑 Réinitialiser la progression</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav">
+    <button class="nav-item active" id="nav-home" onclick="showNav('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10"/></svg>
+      <span>Accueil</span>
+    </button>
+    <button class="nav-item" id="nav-browse" onclick="showNav('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>Fiches</span>
+    </button>
+    <button class="nav-item" id="nav-stats" onclick="showNav('stats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>Stats</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- MODULE MODAL -->
+<div class="modal-overlay" id="module-modal" onclick="closeModal()">
+  <div class="modal-sheet" onclick="e=>e.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-module-title">Choisir un mode</div>
+    <div class="mode-list" id="modal-mode-list"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA — Questions médecine statutaire FPT
+// ═══════════════════════════════════════════════
+const CATEGORIES = [
+  { id:'cmo-tit',   label:'CMO – Titulaires',     icon:'🏥', color:'#2DD4BF' },
+  { id:'clm',       label:'CLM – Titulaires',      icon:'🩺', color:'#60A5FA' },
+  { id:'cld',       label:'CLD – Titulaires',      icon:'💊', color:'#A78BFA' },
+  { id:'citis',     label:'AT/MP & CITIS',          icon:'⚕️', color:'#FB923C' },
+  { id:'cmo-ctr',   label:'CMO – Contractuels',    icon:'📄', color:'#34D399' },
+  { id:'conseil',   label:'Conseil Médical',        icon:'⚖️', color:'#FBBF24' },
+  { id:'controle',  label:'Médecine de contrôle',  icon:'🔍', color:'#F87171' },
+  { id:'reclass',   label:'Reclassement & Aptitude',icon:'🔄', color:'#C084FC' },
+];
+
+const QUESTIONS = [
+// ── CMO TITULAIRES ──
+{ id:'cmo1', cat:'cmo-tit', q:"Quelle est la durée du congé de maladie ordinaire (CMO) pour un titulaire de la FPT ?", opts:["1 mois PT + 1 mois DT","3 mois PT + 9 mois DT","6 mois PT + 6 mois DT","12 mois PT seulement"], ans:1, expl:"Par période de 12 mois consécutifs, le titulaire a droit à 3 mois à plein traitement (PT) puis 9 mois à demi-traitement (DT). Après épuisement, l'agent est placé en disponibilité d'office.", kp:"3 mois PT + 9 mois DT / 12 mois" },
+{ id:'cmo2', cat:'cmo-tit', q:"Dans quel délai un fonctionnaire territorial doit-il transmettre son arrêt de travail à l'employeur ?", opts:["24 heures","48 heures","72 heures","5 jours ouvrés"], ans:1, expl:"L'arrêt de travail doit être adressé à l'autorité territoriale dans les 48 heures suivant la prescription. Le non-respect peut entraîner une retenue sur traitement.", kp:"Délai : 48h" },
+{ id:'cmo3', cat:'cmo-tit', q:"Combien de jours de carence s'appliquent aux titulaires de la FPT en CMO ?", opts:["Aucun","1 jour","3 jours","5 jours"], ans:1, expl:"Depuis la loi n°2018-1203 du 22 décembre 2018, un seul jour de carence est appliqué. Il ne s'applique pas en cas de maladie professionnelle, accident de service, ou si l'arrêt fait suite à une hospitalisation.", kp:"1 jour de carence (loi 2018)" },
+{ id:'cmo4', cat:'cmo-tit', q:"Que se passe-t-il lorsqu'un titulaire a épuisé ses droits à CMO ?", opts:["Il est licencié","Il est mis en disponibilité d'office","Il passe automatiquement en CLM","Il bénéficie des IJ de la Sécurité Sociale"], ans:1, expl:"À l'issue des 12 mois de CMO sans reprise possible, l'agent est placé en disponibilité d'office pour maladie. Il ne perçoit plus de traitement mais peut bénéficier d'IJ CPAM s'il est affilié.", kp:"→ Disponibilité d'office" },
+{ id:'cmo5', cat:'cmo-tit', q:"Le délai de carence s'applique-t-il si l'arrêt fait suite à une hospitalisation ?", opts:["Oui, toujours","Non, exonération","Seulement si l'hospit. dure >3 jours","Seulement pour les hospitalisations en urgence"], ans:1, expl:"Le jour de carence n'est pas applicable lors d'un arrêt prescrit consécutif à une hospitalisation, quelle que soit sa durée.", kp:"Hospit. → pas de carence" },
+{ id:'cmo6', cat:'cmo-tit', q:"Le traitement versé pendant un CMO inclut-il le supplément familial de traitement (SFT) ?", opts:["Oui, en totalité","Oui, seulement à plein traitement","Non","Oui, mais seulement si >2 enfants"], ans:0, expl:"Le SFT est maintenu en totalité pendant toute la durée du CMO (plein traitement et demi-traitement), car il est attaché à la situation de famille et non à la valeur du point.", kp:"SFT maintenu intégralement" },
+
+// ── CLM TITULAIRES ──
+{ id:'clm1', cat:'clm', q:"Quelle est la durée totale d'un congé de longue maladie (CLM) pour un titulaire ?", opts:["1 an PT + 1 an DT","1 an PT + 2 ans DT","2 ans PT + 1 an DT","3 ans tous PT"], ans:1, expl:"Le CLM est de 3 ans maximum : 1 an à plein traitement + 2 ans à demi-traitement. Il peut être accordé par fractions de 3 à 6 mois.", kp:"3 ans : 1 PT + 2 DT" },
+{ id:'clm2', cat:'clm', q:"Qui doit être consulté avant l'octroi d'un CLM à un titulaire ?", opts:["Le médecin de famille","Le médecin du travail","Le Conseil Médical","L'inspecteur du travail"], ans:2, expl:"Le Conseil Médical (en formation restreinte) doit impérativement être consulté avant tout octroi ou renouvellement de CLM. Son avis est consultatif mais obligatoire.", kp:"Conseil Médical → obligatoire" },
+{ id:'clm3', cat:'clm', q:"Quelles maladies ouvrent droit au CLM (hors liste) ?", opts:["Toutes les maladies chroniques","Les maladies dont la gravité est équivalente à celles de la liste ministérielle","Seulement les 5 affections listées","Uniquement les maladies reconnues comme maladies professionnelles"], ans:1, expl:"En plus des maladies figurant sur la liste de l'arrêté du 14 mars 1986, le CLM peut être accordé pour toute maladie présentant un caractère invalidant et de traitement prolongé comparable.", kp:"Liste + maladies équivalentes" },
+{ id:'clm4', cat:'clm', q:"Peut-on exercer une activité rémunérée pendant un CLM ?", opts:["Oui, librement","Non, strictement interdit","Oui, avec autorisation de l'employeur","Seulement une activité bénévole"], ans:1, expl:"Toute activité rémunérée est strictement interdite pendant un CLM. Le non-respect constitue une fraude pouvant entraîner une procédure disciplinaire et le remboursement des sommes perçues.", kp:"Activité rémunérée → interdite" },
+{ id:'clm5', cat:'clm', q:"Que se passe-t-il à la fin des droits à CLM si l'agent ne peut reprendre ses fonctions ?", opts:["Licenciement immédiat","Disponibilité d'office puis retraite pour invalidité ou reclassement","Retraite automatique","Extension du CLM de 6 mois"], ans:1, expl:"À l'issue des 3 ans de CLM, si l'agent est inapte, il est placé en disponibilité d'office (12 mois maximum), puis soit reclassé, soit mis à la retraite pour invalidité.", kp:"CLM épuisé → dispo → retraite invalide" },
+{ id:'clm6', cat:'clm', q:"Le temps passé en CLM est-il comptabilisé pour la retraite ?", opts:["Non","Oui, intégralement pour les 2 premières années","Oui, intégralement toute la durée","Seulement l'année PT"], ans:2, expl:"Toute la durée du CLM (3 ans) est comptabilisée dans les droits à retraite comme si l'agent était en activité.", kp:"CLM compte pour la retraite" },
+
+// ── CLD TITULAIRES ──
+{ id:'cld1', cat:'cld', q:"Quelle est la durée totale d'un congé de longue durée (CLD) pour un titulaire ?", opts:["3 ans PT + 2 ans DT","2 ans PT + 3 ans DT","5 ans tous PT","1 an PT + 4 ans DT"], ans:0, expl:"Le CLD dure 5 ans maximum : 3 ans à plein traitement + 2 ans à demi-traitement. C'est le congé le plus protecteur.", kp:"5 ans : 3 PT + 2 DT" },
+{ id:'cld2', cat:'cld', q:"Quelles sont les 5 affections ouvrant droit au CLD ?", opts:["Cancer, diabète, sclérose, sida, rhumatisme","Tuberculose, maladie mentale, cancers, poliomyélite, déficit immunitaire grave","Tuberculose, cancer, AVC, diabète, maladie mentale","Cancer, sida, maladie mentale, asthme, parkinson"], ans:1, expl:"Liste limitative de l'article 57 loi 84-53 : tuberculose, maladie mentale, affections cancéreuses, poliomyélite, et déficit immunitaire grave et acquis (VIH/SIDA).", kp:"5 affections : tuberculose/psycho/cancer/polio/VIH" },
+{ id:'cld3', cat:'cld', q:"Un agent en CLM pour cancer peut-il basculer en CLD ?", opts:["Non, les deux congés sont exclusifs","Oui, si le CLM porte sur une des 5 affections CLD","Seulement après avis favorable du Conseil Médical plénière","Oui, automatiquement après 1 an de CLM"], ans:1, expl:"Si la maladie ayant entraîné le CLM figure dans les 5 affections du CLD, l'agent peut demander le bénéfice du CLD, plus avantageux. Le Conseil Médical est consulté.", kp:"CLM → CLD possible si affection listée" },
+{ id:'cld4', cat:'cld', q:"Peut-on passer directement en CLD sans passer par le CMO et le CLM ?", opts:["Non, passage obligatoire par CMO puis CLM","Oui, si la maladie relève directement des 5 affections","Seulement en cas d'hospitalisation prolongée","Non, jamais"], ans:1, expl:"L'accès direct au CLD est possible si la maladie relève de plein droit d'une des 5 affections listées, sans obligation de transiter par le CMO puis le CLM.", kp:"Accès direct CLD possible" },
+{ id:'cld5', cat:'cld', q:"Combien d'années de CLD sont comptabilisées pour la retraite ?", opts:["Toutes les 5 années","Seulement les 3 ans PT","Seulement les 2 ans DT","Aucune"], ans:0, expl:"La totalité de la période de CLD (5 ans) est prise en compte pour le calcul des droits à pension de retraite.", kp:"5 ans → tous comptent pour retraite" },
+
+// ── AT/MP & CITIS ──
+{ id:'citis1', cat:'citis', q:"Quel texte a créé le Congé pour Invalidité Temporaire Imputable au Service (CITIS) ?", opts:["Loi du 13 juillet 1983","Décret n°2019-122 du 21 février 2019","Décret n°2022-350 du 11 mars 2022","Loi de 2018 portant transformation de la FP"], ans:1, expl:"Le CITIS a été créé par le décret n°2019-122 du 21 février 2019, en remplacement du régime spécial d'AT/MP prévu par l'article 57 de la loi du 26 janvier 1984.", kp:"CITIS = décret 2019-122" },
+{ id:'citis2', cat:'citis', q:"Que couvre le CITIS en termes de maintien de traitement ?", opts:["Demi-traitement illimité","Plein traitement + remboursement frais médicaux jusqu'à guérison/consolidation","Plein traitement 6 mois puis demi-traitement","Idem CMO mais sans carence"], ans:1, expl:"Le CITIS ouvre droit au maintien intégral du traitement + remboursement de tous les frais médicaux directement liés à l'accident ou la maladie, sans limitation de durée.", kp:"PT + rembt frais, durée illimitée" },
+{ id:'citis3', cat:'citis', q:"Dans quel délai l'autorité territoriale peut-elle contester l'imputabilité d'un accident de service ?", opts:["48 heures","10 jours après réception de la déclaration","1 mois","3 mois"], ans:1, expl:"L'employeur dispose de 10 jours à compter de la réception de la déclaration d'accident pour en contester l'imputabilité au service en saisissant le Conseil Médical.", kp:"Contestation : 10 jours" },
+{ id:'citis4', cat:'citis', q:"Qu'est-ce que la consolidation dans le cadre d'un CITIS ?", opts:["La guérison complète et définitive","La date à partir de laquelle les lésions se stabilisent, permettant l'évaluation du taux d'IPP","La reprise des fonctions","L'entrée en retraite pour invalidité"], ans:1, expl:"La consolidation est l'état de stabilisation des lésions, constatée médicalement, qui permet de fixer définitivement le taux d'incapacité permanente partielle (IPP) et les droits à rente.", kp:"Consolidation = lésions stabilisées → taux IPP" },
+{ id:'citis5', cat:'citis', q:"Le jour de carence s'applique-t-il en cas d'accident de service ?", opts:["Oui","Non","Seulement si 3e AT dans l'année","Oui, sauf hospitalisation"], ans:1, expl:"Le jour de carence ne s'applique jamais en cas de maladie professionnelle ou d'accident de service. C'est l'une des protections spécifiques du régime CITIS.", kp:"AT/MP → zéro carence" },
+{ id:'citis6', cat:'citis', q:"Un agent peut-il cumuler un CITIS avec une activité rémunérée accessoire ?", opts:["Oui, librement","Non, interdiction totale","Oui avec accord de l'employeur","Seulement si activité antérieure à l'AT"], ans:1, expl:"Comme pour le CLM/CLD, toute activité rémunérée est incompatible avec le CITIS. Des contrôles peuvent être diligentés.", kp:"CITIS → activité rémunérée interdite" },
+
+// ── CMO CONTRACTUELS ──
+{ id:'ctrcmo1', cat:'cmo-ctr', q:"Quels sont les droits à CMO d'un agent contractuel ayant entre 4 mois et 2 ans d'ancienneté ?", opts:["Pas de maintien de traitement","1 mois PT + 1 mois DT","2 mois PT + 2 mois DT","3 mois PT + 3 mois DT"], ans:1, expl:"Selon le décret 88-145 modifié, entre 4 mois et 2 ans d'ancienneté : 1 mois à plein traitement + 1 mois à demi-traitement. En dessous de 4 mois : aucun maintien, indemnités CPAM uniquement.", kp:"4 mois-2 ans : 1PT + 1DT" },
+{ id:'ctrcmo2', cat:'cmo-ctr', q:"Droits CMO d'un contractuel avec 2 à 3 ans d'ancienneté ?", opts:["1 mois PT + 1 mois DT","2 mois PT + 2 mois DT","3 mois PT + 3 mois DT","4 mois PT + 4 mois DT"], ans:1, expl:"Entre 2 et 3 ans d'ancienneté : 2 mois à plein traitement + 2 mois à demi-traitement. L'ancienneté se calcule à la date de l'arrêt.", kp:"2-3 ans : 2PT + 2DT" },
+{ id:'ctrcmo3', cat:'cmo-ctr', q:"Droits CMO d'un contractuel avec 3 ans ou plus d'ancienneté ?", opts:["3 mois PT + 3 mois DT","4 mois PT + 4 mois DT","6 mois PT + 6 mois DT","Idem titulaires : 3 mois PT + 9 mois DT"], ans:0, expl:"À partir de 3 ans d'ancienneté : 3 mois à plein traitement + 3 mois à demi-traitement. Les contractuels n'atteignent jamais le niveau des titulaires pour le CMO (3 mois PT + 9 mois DT).", kp:"≥ 3 ans : 3PT + 3DT" },
+{ id:'ctrcmo4', cat:'cmo-ctr', q:"Un contractuel de moins de 4 mois d'ancienneté tombe malade. Que perçoit-il ?", opts:["Demi-traitement de l'employeur","Plein traitement pendant 15 jours","Les IJ de la CPAM uniquement (après carence SS)","Rien du tout"], ans:2, expl:"En dessous de 4 mois d'ancienneté, l'employeur public ne verse aucun maintien de traitement. L'agent est renvoyé vers la CPAM pour les seules indemnités journalières, sous condition d'affiliation.", kp:"< 4 mois → IJ CPAM uniquement" },
+{ id:'ctrcmo5', cat:'cmo-ctr', q:"Depuis quel texte les contractuels FPT ont-ils droit au CLM et au CLD ?", opts:["Depuis la loi du 26 janvier 1984","Depuis le décret 88-145","Depuis le décret 2023-484","Depuis la loi de transformation FP 2019"], ans:2, expl:"Le décret n°2023-484 du 21 juin 2023 a aligné les droits des contractuels de la FP sur ceux des titulaires pour le CLM (3 ans), le CLD (5 ans) et le CITIS.", kp:"Décret 2023-484 : CLM/CLD pour contractuels" },
+{ id:'ctrcmo6', cat:'cmo-ctr', q:"Le jour de carence s'applique-t-il aux contractuels FPT ?", opts:["Non, seulement aux titulaires","Oui, 1 jour de carence","Oui, 3 jours comme en droit privé","Oui, mais remboursé après 3 mois"], ans:1, expl:"Le jour de carence s'applique également aux agents contractuels de la FPT depuis la loi 2018-1203. Les mêmes exonérations s'appliquent (AT, hospit.).", kp:"Contractuels : 1 jour de carence aussi" },
+
+// ── CONSEIL MÉDICAL ──
+{ id:'cm1', cat:'conseil', q:"Quel texte a créé le Conseil Médical et remplacé le Comité Médical et la Commission de Réforme ?", opts:["Loi de transformation FP 2019","Décret n°2022-350 du 11 mars 2022","Loi du 26 janvier 1984","Décret 2019-122"], ans:1, expl:"Le décret n°2022-350 du 11 mars 2022 (applicable FPT au 1er juillet 2022) a créé le Conseil Médical unique, fusionnant l'ancien Comité Médical et la Commission de Réforme.", kp:"Décret 2022-350 → Conseil Médical" },
+{ id:'cm2', cat:'conseil', q:"Dans quels cas siège le Conseil Médical en formation RESTREINTE ?", opts:["Retraite pour invalidité uniquement","AT/MP, CLM, CLD, CMO > 6 mois consécutifs","Licenciement pour inaptitude","Uniquement pour les contractuels"], ans:1, expl:"La formation restreinte traite : congé maladie ordinaire > 6 mois consécutifs, CLM, CLD, accidents de service contestés, mi-temps thérapeutique. Composition : 2 médecins.", kp:"FR : CLM/CLD/CMO>6m/AT contesté" },
+{ id:'cm3', cat:'conseil', q:"La formation PLÉNIÈRE du Conseil Médical est compétente pour ?", opts:["CMO > 3 mois","Retraite pour invalidité, reclassement, mise à la retraite d'office, RQTH","Toute maladie > 1 mois","Contre-visite médicale"], ans:1, expl:"La formation plénière traite : retraite pour invalidité, reclassement pour inaptitude définitive, mise à la retraite d'office, attribution rente d'incapacité. Composition : 2 médecins + 1 rep. admin. + 1 rep. personnel.", kp:"FP : invalidité/reclassement/retraite" },
+{ id:'cm4', cat:'conseil', q:"L'avis du Conseil Médical lie-t-il l'autorité territoriale ?", opts:["Oui, l'avis est contraignant","Non, l'avis est consultatif","Oui, seulement pour le CLD","Seulement en cas d'avis unanime"], ans:1, expl:"L'avis du Conseil Médical est purement consultatif. L'autorité territoriale peut s'en écarter, à condition de motiver sa décision. L'agent peut former un recours.", kp:"Avis consultatif, non contraignant" },
+{ id:'cm5', cat:'conseil', q:"Quel est le délai théorique de rendu d'avis du Conseil Médical ?", opts:["15 jours","1 mois","2 mois","6 mois"], ans:2, expl:"En principe, le Conseil Médical doit rendre son avis dans les 2 mois suivant sa saisine. Des délais supplémentaires peuvent s'appliquer en cas de demande d'expertise complémentaire.", kp:"Délai de principe : 2 mois" },
+{ id:'cm6', cat:'conseil', q:"Un agent peut-il contester un avis du Conseil Médical ?", opts:["Non, l'avis est définitif","Oui, par voie de recours devant le même Conseil ou par recours contentieux","Oui, mais uniquement devant le Tribunal Administratif","Seulement si licenciement"], ans:1, expl:"L'agent peut demander un recours devant le Conseil Médical compétent, puis exercer un recours contentieux devant le Tribunal Administratif contre la décision finale de l'autorité territoriale.", kp:"Recours : Conseil Médical → TA" },
+
+// ── MÉDECINE DE CONTRÔLE ──
+{ id:'ctrl1', cat:'controle', q:"Qu'est-ce qu'une contre-visite médicale ?", opts:["Une visite de reprise obligatoire","Une visite médicale mandatée par l'employeur pour vérifier le bien-fondé d'un arrêt","Un examen du Conseil Médical","Une visite annuelle obligatoire"], ans:1, expl:"La contre-visite est diligentée à l'initiative de l'employeur. Le médecin mandaté se rend au domicile ou convoque l'agent pour vérifier l'état de santé justifiant l'arrêt.", kp:"Initiative employeur → domicile ou cabinet" },
+{ id:'ctrl2', cat:'controle', q:"Si le médecin contrôleur estime l'arrêt injustifié, quelle est la conséquence immédiate ?", opts:["Interruption automatique du traitement","Il émet un avis défavorable ; l'employeur décide seul des suites administratives","L'agent est obligé de reprendre immédiatement","Saisine du Conseil Médical en urgence"], ans:1, expl:"Le médecin de contrôle émet un avis médical. Il ne peut pas annuler l'arrêt. L'autorité territoriale reste souveraine : elle peut retenir une partie du traitement après avoir averti l'agent.", kp:"Avis médical ≠ annulation de l'arrêt" },
+{ id:'ctrl3', cat:'controle', q:"L'agent est-il obligé de se soumettre à la contre-visite médicale ?", opts:["Non, c'est facultatif","Oui, refus = sanction possible + suspension du traitement","Oui, mais seulement sur convocation officielle","Seulement en cas de CMO > 2 mois"], ans:1, expl:"L'agent est tenu de se soumettre à la contre-visite. Un refus injustifié peut entraîner la suspension du traitement. Il doit être présent aux horaires de présence obligatoire (généralement 9h-11h et 14h-16h).", kp:"Refus contre-visite → suspension traitement" },
+{ id:'ctrl4', cat:'controle', q:"Qu'est-ce que le mi-temps thérapeutique ?", opts:["Un travail à mi-temps permanent","Une reprise progressive à temps partiel après un congé maladie, avec maintien d'une partie du traitement","Un congé à moitié payé","Une disponibilité pour raison de santé"], ans:1, expl:"Le mi-temps thérapeutique permet à l'agent de reprendre à 50% minimum pour des raisons médicales après CMO, CLM, CLD ou CITIS. Il est accordé pour 6 mois renouvelables 1 fois (1 an max).", kp:"Reprise progressive 50% min, 1 an max" },
+{ id:'ctrl5', cat:'controle', q:"Quelles sont les plages horaires de présence obligatoire à respecter par l'agent en arrêt maladie ?", opts:["Toute la journée","9h-11h et 14h-16h","8h-12h et 14h-18h","Il n'y a pas de plage obligatoire"], ans:1, expl:"L'agent en arrêt est tenu d'être présent à son domicile de 9h à 11h et de 14h à 16h pour permettre une contre-visite, sauf sorties autorisées explicitement par le médecin.", kp:"Plages : 9h-11h / 14h-16h" },
+{ id:'ctrl6', cat:'controle', q:"Qu'est-ce que la visite de reprise ?", opts:["Une visite facultative","Une visite médicale obligatoire après certains absences (>30j, maternité, AT) avant la reprise effective","Un entretien avec les RH","Un contrôle du médecin du travail après 3 CMO"], ans:1, expl:"La visite de reprise est organisée par le médecin du travail / prévention et est obligatoire après : congé maternité, AT/MP avec arrêt, absence ≥ 30 jours. Elle précède la reprise effective.", kp:"Visite reprise : obligatoire ≥30j / AT / maternité" },
+
+// ── RECLASSEMENT & APTITUDE ──
+{ id:'rcl1', cat:'reclass', q:"Qu'est-ce que le reclassement pour raison de santé ?", opts:["Un licenciement pour inaptitude","Une procédure permettant à un agent inapte à ses fonctions d'occuper un poste adapté","Une mise à la retraite anticipée","Un congé spécial de longue durée"], ans:1, expl:"Le reclassement permet à un agent inapte physiquement à ses fonctions d'être nommé dans un autre grade ou cadre d'emplois, après avis du Conseil Médical (formation plénière).", kp:"Reclassement = autre poste adapté" },
+{ id:'rcl2', cat:'reclass', q:"L'agent peut-il refuser le reclassement proposé ?", opts:["Non, le reclassement est obligatoire","Oui, mais il peut être radié des cadres sans retraite pour invalidité","Oui, il est alors mis en disponibilité","Oui, il bénéficie d'une indemnité de licenciement"], ans:1, expl:"L'agent peut refuser le reclassement. Il peut aussi être dans l'impossibilité d'être reclassé. Dans les deux cas, après la disponibilité d'office, il risque la radiation des cadres sans droit à la retraite pour invalidité si refus injustifié.", kp:"Refus reclassement → risque radiation" },
+{ id:'rcl3', cat:'reclass', q:"Qu'est-ce que l'inaptitude physique définitive ?", opts:["L'impossibilité temporaire d'exercer","L'impossibilité permanente et définitive d'exercer tout emploi public, constatée médicalement","Une pause de 6 mois dans la carrière","Un arrêt maladie prolongé"], ans:1, expl:"L'inaptitude physique définitive est constatée par le Conseil Médical (formation plénière). Elle peut conduire à la mise à la retraite pour invalidité ou à la radiation si aucun reclassement n'est possible.", kp:"Inaptitude définitive → retraite invalide" },
+{ id:'rcl4', cat:'reclass', q:"Quelle est la durée maximale de la disponibilité d'office pour maladie ?", opts:["6 mois","12 mois","18 mois","3 ans"], ans:1, expl:"La disponibilité d'office pour raison de santé est de 12 mois maximum, renouvelable deux fois. À son issue (3 ans au total), l'agent est soit réintégré, soit reclassé, soit mis à la retraite, soit licencié.", kp:"Dispo d'office : 12 mois × 3 max" },
+{ id:'rcl5', cat:'reclass', q:"Le Conseil Médical peut-il se prononcer sur l'aptitude à certaines fonctions seulement ?", opts:["Non, c'est tout ou rien","Oui, il peut émettre un avis d'aptitude partielle avec restrictions","Seulement pour les agents > 15 ans de carrière","Non, c'est au médecin du travail de décider"], ans:1, expl:"Le Conseil Médical peut conclure à une aptitude partielle ou avec restrictions (ex : pas de port de charges, pas de travail en hauteur). Cela peut déclencher une procédure de reclassement ou d'adaptation de poste.", kp:"Aptitude partielle = restrictions possibles" },
+{ id:'rcl6', cat:'reclass', q:"Qu'est-ce que la Reconnaissance de la Qualité de Travailleur Handicapé (RQTH) dans la FPT ?", opts:["Un statut uniquement privé","Une reconnaissance permettant d'accéder à des aménagements de poste et au reclassement prioritaire","Une retraite anticipée pour invalidité","Un congé spécial de 6 mois"], ans:1, expl:"La RQTH, délivrée par la MDPH, permet à l'agent de bénéficier d'aménagements de poste, de priorité dans le reclassement, et d'un accès facilité aux emplois réservés de la FP.", kp:"RQTH → MDPH → aménagements + priorité reclassement" },
+];
+
+// ═══════════════════════════════════════════════
+// INDEXEDDB STORAGE
+// ═══════════════════════════════════════════════
+const DB_NAME='medstat-db', DB_VER=1, STORE='progress';
+let db=null;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=e=>{e.target.result.createObjectStore(STORE,{keyPath:'id'});};
+    r.onsuccess=e=>{db=e.target.result;res(db);};
+    r.onerror=()=>rej(r.error);
+  });
+}
+function getProgress(id){
+  return new Promise(res=>{
+    if(!db){res(null);return;}
+    const tx=db.transaction(STORE,'readonly');
+    const r=tx.objectStore(STORE).get(id);
+    r.onsuccess=()=>res(r.result||null);
+    r.onerror=()=>res(null);
+  });
+}
+function setProgress(id,data){
+  return new Promise(res=>{
+    if(!db){res();return;}
+    const tx=db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).put({id,...data});
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>res();
+  });
+}
+function getAllProgress(){
+  return new Promise(res=>{
+    if(!db){res({});return;}
+    const tx=db.transaction(STORE,'readonly');
+    const r=tx.objectStore(STORE).getAll();
+    r.onsuccess=()=>{
+      const m={};
+      r.result.forEach(x=>{m[x.id]=x;});
+      res(m);
+    };
+    r.onerror=()=>res({});
+  });
+}
+function clearProgress(){
+  return new Promise(res=>{
+    if(!db){res();return;}
+    const tx=db.transaction(STORE,'readwrite');
+    tx.objectStore(STORE).clear();
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>res();
+  });
+}
+
+// ═══════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════
+let prog={}, flashQueue=[], flashIdx=0, flashCorrect=0, flashFlipped=false;
+let quizQueue=[], quizIdx=0, quizScore=0, quizAnswered=false;
+let currentModule=null, quizFinished=false;
+let statsData={quizzes:0};
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showNav(screen){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const s=document.getElementById('screen-'+screen);
+  if(s){s.classList.add('active');s.scrollTop=0;}
+  const n=document.getElementById('nav-'+screen);
+  if(n)n.classList.add('active');
+  if(screen==='home')refreshHome();
+  if(screen==='browse')renderBrowse();
+  if(screen==='stats')renderStats();
+}
+
+// ═══════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════
+async function refreshHome(){
+  prog=await getAllProgress();
+  const total=QUESTIONS.length;
+  const ok=Object.values(prog).filter(p=>p.mastered).length;
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-pct').textContent=Math.round(ok/total*100)+'%';
+  renderModuleGrid();
+}
+
+function renderModuleGrid(){
+  const grid=document.getElementById('module-grid');
+  grid.innerHTML='';
+  CATEGORIES.forEach(cat=>{
+    const qs=QUESTIONS.filter(q=>q.cat===cat.id);
+    const seen=qs.filter(q=>prog[q.id]).length;
+    const ok=qs.filter(q=>prog[q.id]?.mastered).length;
+    const pct=qs.length>0?Math.round(ok/qs.length*100):0;
+    const circ=2*Math.PI*15; // r=15
+    const offset=circ-(pct/100*circ);
+    const card=document.createElement('div');
+    card.className='module-card';
+    card.onclick=()=>openModuleModal(cat.id);
+    card.innerHTML=`
+      <div class="module-icon" style="background:${cat.color}18;color:${cat.color}">${cat.icon}</div>
+      <div class="module-info">
+        <div class="module-name">${cat.label}</div>
+        <div class="module-meta">${qs.length} fiches · ${seen} vues · ${ok} maîtrisées</div>
+      </div>
+      <div class="module-prog">
+        <div class="prog-ring">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" class="ring-bg"/>
+            <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" stroke="${cat.color}" stroke-linecap="round"
+              stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transform-origin:center;transform:rotate(-90deg)"/>
+          </svg>
+          <div class="ring-text">${pct}%</div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// MODULE MODAL
+// ═══════════════════════════════════════════════
+function openModuleModal(catId){
+  currentModule=catId;
+  const cat=CATEGORIES.find(c=>c.id===catId);
+  document.getElementById('modal-module-title').textContent=cat.label;
+  const list=document.getElementById('modal-mode-list');
+  list.innerHTML='';
+  const modes=[
+    {icon:'🃏',name:'Flashcards',desc:'Révision rapide par fiches',fn:()=>{closeModal();startModule(catId,'flash');}},
+    {icon:'🎯',name:'Quiz QCM',desc:'Questions à choix multiples',fn:()=>{closeModal();startModule(catId,'quiz');}},
+    {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();filterBrowse(catId);}},
+  ];
+  modes.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='mode-item';
+    el.onclick=m.fn;
+    el.innerHTML=`<div class="mode-icon">${m.icon}</div><div class="mode-info"><div class="mode-name">${m.name}</div><div class="mode-desc">${m.desc}</div></div>`;
+    list.appendChild(el);
+  });
+  document.getElementById('module-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('module-modal').classList.remove('open');}
+
+// ═══════════════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════════════
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5);}
+
+function startAll(mode){
+  if(mode==='weak'){
+    const weak=QUESTIONS.filter(q=>!prog[q.id]?.mastered);
+    if(weak.length===0){alert('Bravo ! Toutes les fiches sont maîtrisées. Réinitialisez pour recommencer.');return;}
+    startFlash(weak,'Points faibles','Questions non maîtrisées');
+  } else if(mode==='flash'){
+    startFlash(QUESTIONS,'Flashcards','Toutes les fiches');
+  } else if(mode==='quiz'){
+    startQuiz(QUESTIONS,'Quiz complet','Toutes les fiches');
+  }
+}
+
+function startModule(catId,mode){
+  const qs=QUESTIONS.filter(q=>q.cat===catId);
+  const cat=CATEGORIES.find(c=>c.id===catId);
+  if(mode==='flash')startFlash(qs,cat.label,`${qs.length} fiches`);
+  else startQuiz(qs,cat.label,`${qs.length} fiches`);
+}
+
+function startFlash(qs,title,sub){
+  flashQueue=shuffle(qs);
+  flashIdx=0;flashCorrect=0;flashFlipped=false;
+  document.getElementById('flash-title').textContent=title;
+  document.getElementById('flash-subtitle').textContent=sub;
+  showNav('flash');
+  renderFlash();
+}
+
+function renderFlash(){
+  const q=flashQueue[flashIdx];
+  const cat=CATEGORIES.find(c=>c.id===q.cat);
+  const pct=Math.round((flashIdx)/flashQueue.length*100);
+  document.getElementById('flash-prog').style.width=pct+'%';
+  document.getElementById('flash-counter').textContent=`${flashIdx+1}/${flashQueue.length}`;
+  document.getElementById('flash-cat-badge').innerHTML=`<span class="badge badge-cyan">${cat.icon} ${cat.label}</span>`;
+  document.getElementById('flip-q').textContent=q.q;
+  document.getElementById('flip-a').textContent=q.opts[q.ans];
+  const kp=document.getElementById('flip-kp');
+  if(q.kp){kp.textContent=q.kp;kp.style.display='block';}
+  else kp.style.display='none';
+  const card=document.getElementById('flip-card');
+  card.classList.remove('flipped');
+  flashFlipped=false;
+  document.getElementById('flash-tip').style.display='block';
+  document.getElementById('flash-btns').style.display='none';
+}
+
+function flipCard(){
+  if(flashFlipped)return;
+  flashFlipped=true;
+  document.getElementById('flip-card').classList.add('flipped');
+  document.getElementById('flash-tip').style.display='none';
+  document.getElementById('flash-btns').style.display='flex';
+}
+
+async function rateCard(correct){
+  const q=flashQueue[flashIdx];
+  if(correct)flashCorrect++;
+  await setProgress(q.id,{seen:true,mastered:correct,lastSeen:Date.now()});
+  prog[q.id]={seen:true,mastered:correct,lastSeen:Date.now()};
+  flashIdx++;
+  if(flashIdx>=flashQueue.length){
+    showFlashResult();
+  } else {
+    renderFlash();
+  }
+}
+
+function showFlashResult(){
+  const pct=Math.round(flashCorrect/flashQueue.length*100);
+  document.getElementById('screen-flash').innerHTML=`
+    <div class="header">
+      <div><div class="header-title">Résultat</div><div class="header-sub">Session terminée</div></div>
+      <button class="btn-icon" onclick="showNav('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="result-screen">
+      <div class="result-emoji">${pct>=80?'🏆':pct>=50?'👍':'💪'}</div>
+      <div class="result-title">${pct>=80?'Excellent !':pct>=50?'Bon travail !':'Continue !'}</div>
+      <div class="result-sub">${flashCorrect}/${flashQueue.length} fiches maîtrisées (${pct}%)</div>
+      <div style="width:100%;max-width:340px;margin-top:8px;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary" onclick="startAll('weak')">🔥 Retravailler les points faibles</button>
+        <button class="btn-secondary" onclick="showNav('home')">Retour à l'accueil</button>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// QUIZ QCM
+// ═══════════════════════════════════════════════
+function startQuiz(qs,title,sub){
+  quizQueue=shuffle(qs);
+  quizIdx=0;quizScore=0;quizAnswered=false;quizFinished=false;
+  document.getElementById('quiz-title').textContent=title;
+  document.getElementById('quiz-subtitle').textContent=sub;
+  showNav('quiz');
+  renderQuiz();
+}
+
+function renderQuiz(){
+  if(quizIdx>=quizQueue.length){showQuizResult();return;}
+  const q=quizQueue[quizIdx];
+  const cat=CATEGORIES.find(c=>c.id===q.cat);
+  const pct=Math.round(quizIdx/quizQueue.length*100);
+  document.getElementById('quiz-prog').style.width=pct+'%';
+  document.getElementById('quiz-counter').textContent=`${quizIdx+1}/${quizQueue.length}`;
+  const shuffled=[...q.opts.entries()].sort(()=>Math.random()-.5);
+  const content=document.getElementById('qcm-content');
+  content.innerHTML=`
+    <div class="qcm-question fade-up">
+      <span class="badge badge-cyan" style="margin-bottom:10px;display:inline-flex">${cat.icon} ${cat.label}</span><br>
+      ${q.q}
+    </div>
+    <div class="qcm-options" id="qcm-opts">
+      ${shuffled.map(([origIdx,opt])=>`
+        <div class="qcm-opt" onclick="answerQuiz(${origIdx},${q.ans})" data-idx="${origIdx}">
+          <div class="opt-idx">${'ABCD'[shuffled.findIndex(([i])=>i===origIdx)]}</div>
+          <div>${opt}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="qcm-expl" id="qcm-expl"><strong>💡 Explication :</strong><br>${q.expl}${q.kp?`<div class="browse-kp">${q.kp}</div>`:''}</div>
+    <div id="qcm-next-wrap"></div>
+  `;
+}
+
+async function answerQuiz(chosen,correct){
+  if(quizAnswered)return;
+  quizAnswered=true;
+  const opts=document.querySelectorAll('.qcm-opt');
+  opts.forEach(o=>o.classList.add('disabled'));
+  const isCorrect=chosen===correct;
+  if(isCorrect)quizScore++;
+  opts.forEach(o=>{
+    const idx=parseInt(o.dataset.idx);
+    if(idx===correct)o.classList.add('correct');
+    else if(idx===chosen&&!isCorrect)o.classList.add('wrong');
+  });
+  document.getElementById('qcm-expl').classList.add('show');
+  const q=quizQueue[quizIdx];
+  await setProgress(q.id,{seen:true,mastered:isCorrect,lastSeen:Date.now()});
+  prog[q.id]={seen:true,mastered:isCorrect,lastSeen:Date.now()};
+  document.getElementById('qcm-next-wrap').innerHTML=`
+    <button class="btn-primary" onclick="nextQuiz()" style="margin-top:4px">
+      ${quizIdx+1<quizQueue.length?'Question suivante →':'Voir les résultats'}
+    </button>
+  `;
+}
+
+function nextQuiz(){
+  quizIdx++;
+  quizAnswered=false;
+  renderQuiz();
+}
+
+function showQuizResult(){
+  const pct=Math.round(quizScore/quizQueue.length*100);
+  statsData.quizzes=(statsData.quizzes||0)+1;
+  localStorage.setItem('medstat-quizzes',statsData.quizzes);
+  const scoreClass=pct>=80?'great':pct>=50?'ok':'bad';
+  const content=document.getElementById('qcm-content');
+  content.innerHTML=`
+    <div class="qcm-score-card fade-up">
+      <div class="score-big ${scoreClass}">${pct}%</div>
+      <div class="score-label">${quizScore}/${quizQueue.length} bonnes réponses</div>
+      <div style="margin-top:8px;font-size:13px;color:var(--text2)">${pct>=80?'🏆 Excellent niveau !':pct>=50?'👍 Bonne progression !':'💪 Continuez les révisions !'}</div>
+    </div>
+    <button class="btn-primary" onclick="startAll('weak')">🔥 Travailler les points faibles</button>
+    <button class="btn-secondary" onclick="showNav('home')">Retour à l'accueil</button>
+  `;
+  document.getElementById('quiz-prog').style.width='100%';
+}
+
+// ═══════════════════════════════════════════════
+// BROWSE
+// ═══════════════════════════════════════════════
+let browseFilter='all';
+
+function filterBrowse(catId){
+  browseFilter=catId;
+  showNav('browse');
+}
+
+function renderBrowse(){
+  const filters=document.getElementById('browse-filters');
+  filters.innerHTML=`<div class="filter-chip ${browseFilter==='all'?'active':''}" onclick="setBrowseFilter('all')">Toutes (${QUESTIONS.length})</div>`+
+    CATEGORIES.map(c=>{
+      const n=QUESTIONS.filter(q=>q.cat===c.id).length;
+      return `<div class="filter-chip ${browseFilter===c.id?'active':''}" onclick="setBrowseFilter('${c.id}')">${c.icon} ${c.label.split('–')[0].trim()} (${n})</div>`;
+    }).join('');
+  const list=document.getElementById('browse-list');
+  const qs=browseFilter==='all'?QUESTIONS:QUESTIONS.filter(q=>q.cat===browseFilter);
+  document.getElementById('browse-count').textContent=`${qs.length} fiches`;
+  list.innerHTML=qs.map(q=>{
+    const cat=CATEGORIES.find(c=>c.id===q.cat);
+    const mastered=prog[q.id]?.mastered;
+    return `
+      <div class="browse-item" id="bi-${q.id}" onclick="toggleBrowse('${q.id}')">
+        <div class="browse-q">
+          <div style="flex:1">
+            <span class="badge ${mastered?'badge-green':'badge-cyan'}" style="margin-bottom:6px">${mastered?'✓ Maîtrisé':cat.icon+' '+cat.label.split('–')[0].trim()}</span><br>
+            ${q.q}
+          </div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="browse-a">
+          <strong style="color:var(--text)">→ ${q.opts[q.ans]}</strong>
+          <p style="margin-top:6px">${q.expl}</p>
+          ${q.kp?`<div class="browse-kp">${q.kp}</div>`:''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setBrowseFilter(f){browseFilter=f;renderBrowse();}
+function toggleBrowse(id){
+  const el=document.getElementById('bi-'+id);
+  el.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════
+async function renderStats(){
+  prog=await getAllProgress();
+  const total=QUESTIONS.length;
+  const ok=Object.values(prog).filter(p=>p.mastered).length;
+  const seen=Object.values(prog).filter(p=>p.seen).length;
+  const pct=Math.round(ok/total*100);
+  const circ=2*Math.PI*52;
+  const offset=circ-(pct/100*circ);
+  document.getElementById('global-ring-fill').style.strokeDashoffset=offset;
+  document.getElementById('global-pct').textContent=pct+'%';
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-ok').textContent=ok;
+  document.getElementById('st-seen').textContent=seen;
+  const quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
+  document.getElementById('st-streak').textContent=quizzes;
+  const bars=document.getElementById('cat-bars');
+  bars.innerHTML=CATEGORIES.map(cat=>{
+    const qs=QUESTIONS.filter(q=>q.cat===cat.id);
+    const catOk=qs.filter(q=>prog[q.id]?.mastered).length;
+    const catPct=qs.length>0?Math.round(catOk/qs.length*100):0;
+    return `
+      <div class="cat-bar-item">
+        <div class="cat-bar-top">
+          <div class="cat-bar-name">${cat.icon} ${cat.label}</div>
+          <div class="cat-bar-pct">${catOk}/${qs.length}</div>
+        </div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${catPct}%;background:${cat.color}"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function confirmReset(){
+  if(confirm('Réinitialiser toute la progression ?')){
+    await clearProgress();
+    prog={};
+    localStorage.removeItem('medstat-quizzes');
+    statsData.quizzes=0;
+    renderStats();
+    refreshHome();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ICONS (SVG inline as PNG via canvas)
+// ═══════════════════════════════════════════════
+function generateIcon(size){
+  const canvas=document.createElement('canvas');
+  canvas.width=size;canvas.height=size;
+  const ctx=canvas.getContext('2d');
+  const r=size*0.2;
+  // BG gradient
+  const g=ctx.createLinearGradient(0,0,size,size);
+  g.addColorStop(0,'#0D1425');g.addColorStop(1,'#111827');
+  ctx.fillStyle=g;ctx.beginPath();
+  ctx.roundRect(0,0,size,size,r);ctx.fill();
+  // Cross icon
+  ctx.fillStyle='#2DD4BF';
+  const w=size*0.12,h=size*0.42,cx=size/2,cy=size/2;
+  ctx.fillRect(cx-w/2,cy-h/2,w,h);
+  ctx.fillRect(cx-h/2,cy-w/2,h,w);
+  return canvas.toDataURL('image/png');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+async function init(){
+  await openDB();
+  prog=await getAllProgress();
+  statsData.quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
+  refreshHome();
+
+  // Register SW
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+
+  // Generate and cache icons as object URLs
+  try{
+    const icon192=generateIcon(192);
+    const icon512=generateIcon(512);
+    // Set apple touch icon
+    document.querySelector('link[rel="apple-touch-icon"]').href=icon192;
+  }catch(e){}
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
