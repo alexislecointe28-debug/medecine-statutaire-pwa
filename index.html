@@ -682,6 +682,7 @@ body{
             <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
           </svg>
           <div class="dash-title">Médecine Statutaire FPT</div>
+            <div id="app-version" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px"></div>
         </div>
         <div class="dash-streak" id="dash-streak" style="display:none">
           <span class="dash-streak-fire">🔥</span>
@@ -1470,6 +1471,97 @@ function showNav(screen){
   if(screen==='stats')renderStats();
   if(screen==='errors')renderErrors();
 }
+
+// ═══════════════════════════════════════════════
+// QUIZ HOME DASHBOARD
+// ═══════════════════════════════════════════════
+async function refreshQuizHome(){
+  prog=await getAllProgress();
+  const total=QUESTIONS.length;
+  const ok=Object.values(prog).filter(p=>p.mastered).length;
+  const seen=Object.values(prog).filter(p=>p.seen).length;
+  const toReview=Object.values(prog).filter(p=>p.seen&&!p.mastered).length;
+  const pct=Math.round(ok/total*100);
+  // Anneau
+  const circ=2*Math.PI*32;
+  const offset=circ-(pct/100*circ);
+  const ring=document.getElementById('dash-ring-fill');
+  if(ring){ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=offset;}
+  setEl('dash-pct',pct+'%');
+  const pfill=document.getElementById('home-prog-fill');
+  if(pfill)pfill.style.width=pct+'%';
+  // Tagline
+  const tagline=pct===0?'Commence à réviser !':pct<30?'Bien démarré 💪':pct<60?'Belle progression 📈':pct<90?'Presque au top 🎯':'Niveau expert 🏆';
+  setEl('dash-tagline',tagline);
+  // Stats
+  setEl('dash-ok',ok);
+  setEl('dash-review',toReview);
+  setEl('dash-seen',seen);
+  setEl('dash-total',total);
+  // KPIs
+  const todayStart=new Date();todayStart.setHours(0,0,0,0);
+  const todayQ=Object.values(prog).filter(p=>p.lastSeen>=todayStart.getTime()).length;
+  const weekAgo=Date.now()-7*86400000;
+  const weekErr=Object.values(prog).filter(p=>p.lastSeen>weekAgo&&(p.errorCount||0)>0).length;
+  const quizTotal=parseInt(localStorage.getItem('medstat-quizzes')||'0');
+  setEl('kpi-today',todayQ);
+  setEl('kpi-week-err',weekErr);
+  setEl('kpi-quiz-total',quizTotal);
+  // Version
+  const vEl=document.getElementById('app-version');
+  if(vEl)vEl.textContent=APP_VERSION+' · '+QUESTIONS.length+' fiches';
+  // Domain grid
+  renderDomainGrid();
+  renderStreakDash();
+}
+
+function setEl(id,val){
+  const el=document.getElementById(id);
+  if(el)el.textContent=val;
+}
+
+function renderStreakDash(){
+  const streak=parseInt(localStorage.getItem('medstat-streak')||'0');
+  const ds=document.getElementById('dash-streak');
+  if(!ds)return;
+  if(streak>=2){
+    ds.style.display='flex';
+    const sc=document.getElementById('streak-count');
+    if(sc)sc.textContent=streak;
+  } else {
+    ds.style.display='none';
+  }
+}
+
+function renderDomainGrid(){
+  const grid=document.getElementById('domain-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  GROUPS.forEach(grp=>{
+    const cats=CATEGORIES.filter(c=>c.group===grp.id);
+    const qs=cats.flatMap(c=>QUESTIONS.filter(q=>q.cat===c.id));
+    const ok=qs.filter(q=>prog[q.id]?.mastered).length;
+    const pct=qs.length?Math.round(ok/qs.length*100):0;
+    const statusCls=pct>=80?'green':pct>=50?'orange':'red';
+    const statusTxt=pct>=80?'✓ Prêt':pct>=50?'⚡ En cours':'⚠ À travailler';
+    const btn=document.createElement('div');
+    btn.className='domain-btn';
+    btn.onclick=()=>{
+      const sel=selectAdaptive(qs,10);
+      startQuiz(sel,grp.label,'10 questions adaptatives');
+    };
+    btn.innerHTML=`
+      <div class="db-icon">${grp.icon}</div>
+      <div class="db-name">${grp.label}</div>
+      <div class="db-meta">${ok}/${qs.length} · ${pct}%</div>
+      <div class="db-bar"><div class="db-bar-fill" style="width:${pct}%;background:${grp.color}"></div></div>
+      <div class="db-status ${statusCls}">${statusTxt}</div>`;
+    grid.appendChild(btn);
+  });
+}
+
+function renderStreak(){ renderStreakDash(); }
+function refreshHome(){ refreshQuizHome(); }
 
 function switchReviseTab(tab){
   ['modules','fiches','synthese'].forEach(t=>{
