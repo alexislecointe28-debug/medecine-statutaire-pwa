@@ -413,55 +413,122 @@ body{
 
 /* iOS safe areas */
 .screen{padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+
+/* ── QUIZ HOME SCREEN ── */
+.quiz-hero{
+  padding:24px 20px 20px;
+  background:linear-gradient(180deg,rgba(8,145,178,.06) 0%,transparent 80%);
+}
+.quiz-headline{
+  font-size:13px;font-weight:600;color:var(--cyan);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.quiz-headline::before{content:'';width:20px;height:2px;background:var(--cyan);border-radius:2px;}
+.btn-quiz-main{
+  width:100%;padding:18px 20px;border-radius:18px;border:none;
+  background:linear-gradient(135deg,#0891B2,#0E7490);
+  color:#fff;font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 6px 24px rgba(8,145,178,.3);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:10px;
+}
+.btn-quiz-main:active{transform:scale(.98);}
+.btn-quiz-main .q-arrow{font-size:20px;margin-left:4px;}
+.btn-quiz-weak{
+  width:100%;padding:14px 20px;border-radius:14px;
+  border:1.5px solid rgba(220,38,38,.2);background:rgba(220,38,38,.05);
+  color:#DC2626;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:20px;
+}
+.btn-quiz-weak:active{transform:scale(.98);}
+.progress-strip{
+  height:6px;border-radius:99px;background:var(--border);overflow:hidden;margin-bottom:6px;
+}
+.progress-strip-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#0891B2,#06B6D4);
+  transition:width .4s;
+}
+.prog-legend{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.domain-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:0 20px 24px;
+}
+.domain-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:14px 12px;cursor:pointer;transition:all .18s;text-align:left;
+}
+.domain-btn:active{transform:scale(.97);}
+.domain-btn .db-icon{font-size:18px;margin-bottom:6px;}
+.domain-btn .db-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.domain-btn .db-meta{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+.domain-btn .db-bar{height:3px;border-radius:99px;background:var(--border);margin-top:8px;overflow:hidden;}
+.domain-btn .db-bar-fill{height:100%;border-radius:99px;transition:width .3s;}
+
+/* ── RÉVISER SCREEN ── */
+.revise-tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  padding:0 20px;gap:0;position:sticky;top:57px;z-index:10;
+  background:rgba(248,250,252,.95);backdrop-filter:blur(8px);
+}
+.revise-tab{
+  padding:12px 16px;font-size:13px;font-weight:600;color:var(--text3);
+  border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .15s;margin-bottom:-1px;
+}
+.revise-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- HOME -->
+  <!-- QUIZ (écran principal) -->
   <div class="screen active" id="screen-home">
-    <div class="home-hero">
-      <div class="home-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 12h6m-3-3v6M7.8 21A7 7 0 1 1 21 12.2"/>
-          <path d="M17 17l4 4"/>
-        </svg>
+    <div class="header">
+      <div>
+        <div class="header-title">Médecine Statutaire FPT</div>
+        <div class="header-sub" id="quiz-home-sub">Chargement…</div>
       </div>
-      <h1 class="home-title">Médecine<br><span>Statutaire FPT</span></h1>
-      <p class="home-desc">Droits maladie · Fonction Publique Territoriale · Titulaires & Contractuels</p>
     </div>
-
-    <div class="stats-bar" id="home-stats">
-      <div class="stat-pill"><div class="val" id="s-total">0</div><div class="lbl">Questions</div></div>
-      <div class="stat-pill"><div class="val" id="s-ok">0</div><div class="lbl">Maîtrisées</div></div>
-      <div class="stat-pill"><div class="val" id="s-pct">0%</div><div class="lbl">Progression</div></div>
+    <div class="quiz-hero">
+      <div class="quiz-headline">Quiz adaptatif</div>
+      <button class="btn-quiz-main" onclick="startAll('quiz')">
+        ⚡ Lancer le Quiz Flash <span class="q-arrow">→</span>
+      </button>
+      <button class="btn-quiz-weak" onclick="startAll('weak')">
+        🔥 Travailler mes erreurs
+      </button>
+      <div class="progress-strip">
+        <div class="progress-strip-fill" id="home-prog-fill" style="width:0%"></div>
+      </div>
+      <div class="prog-legend">
+        <span id="home-prog-left">0 maîtrisées</span>
+        <span id="home-prog-right">0%</span>
+      </div>
     </div>
+    <div class="section-label" style="padding-top:4px">Quiz par domaine</div>
+    <div class="domain-grid" id="domain-grid"></div>
+  </div>
 
-    <div class="section-label" style="padding-top:4px">Modules</div>
-    <div class="module-grid" id="module-grid"></div>
-
-    <div class="section-label">Modes de révision</div>
-    <div class="quick-actions">
-      <div class="quick-btn accent" onclick="startAll('flash')">
-        <div class="qb-icon">🃏</div>
-        <div class="qb-title">Flashcards</div>
-        <div class="qb-sub">Toutes les fiches</div>
-      </div>
-      <div class="quick-btn accent" onclick="startAll('quiz')">
-        <div class="qb-icon">⚡</div>
-        <div class="qb-title">Quiz Flash</div>
-        <div class="qb-sub">10 questions adaptatives</div>
-      </div>
-      <div class="quick-btn" onclick="startAll('weak')">
-        <div class="qb-icon">🔥</div>
-        <div class="qb-title">Points faibles</div>
-        <div class="qb-sub">10Q ciblées sur tes erreurs</div>
-      </div>
-      <div class="quick-btn" onclick="showNav('browse')">
-        <div class="qb-icon">📋</div>
-        <div class="qb-title">Parcourir</div>
-        <div class="qb-sub">Toutes les fiches</div>
-      </div>
+  <!-- RÉVISER (modules + parcourir) -->
+  <div class="screen" id="screen-revise">
+    <div class="header">
+      <div><div class="header-title">Réviser</div></div>
+    </div>
+    <div class="revise-tabs">
+      <button class="revise-tab active" id="rtab-modules" onclick="switchReviseTab('modules')">Modules</button>
+      <button class="revise-tab" id="rtab-fiches" onclick="switchReviseTab('fiches')">Parcourir</button>
+    </div>
+    <div id="revise-modules-panel">
+      <div class="module-grid" id="module-grid" style="padding-top:12px"></div>
+    </div>
+    <div id="revise-fiches-panel" style="display:none">
+      <div class="browse-filters" id="browse-filters"></div>
+      <div class="browse-list" id="browse-list"></div>
     </div>
   </div>
 
@@ -531,14 +598,7 @@ body{
     <div class="qcm-wrap" id="qcm-content"></div>
   </div>
 
-  <!-- BROWSE -->
-  <div class="screen" id="screen-browse">
-    <div class="header">
-      <div><div class="header-title">Parcourir</div><div class="header-sub" id="browse-count"></div></div>
-    </div>
-    <div class="browse-filters" id="browse-filters"></div>
-    <div class="browse-list" id="browse-list"></div>
-  </div>
+
 
   <!-- STATS -->
   <div class="screen" id="screen-stats">
@@ -580,12 +640,14 @@ body{
   <!-- BOTTOM NAV -->
   <nav class="nav">
     <button class="nav-item active" id="nav-home" onclick="showNav('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h4v-6h6v6h4V10"/></svg>
-      <span>Accueil</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+      <span>Quiz</span>
     </button>
-    <button class="nav-item" id="nav-browse" onclick="showNav('browse')">
+    <button class="nav-item" id="nav-revise" onclick="showNav('revise')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      <span>Fiches</span>
+      <span>Réviser</span>
     </button>
     <button class="nav-item" id="nav-stats" onclick="showNav('stats')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -1021,9 +1083,30 @@ function showNav(screen){
   if(s){s.classList.add('active');s.scrollTop=0;}
   const n=document.getElementById('nav-'+screen);
   if(n)n.classList.add('active');
-  if(screen==='home')refreshHome();
-  if(screen==='browse')renderBrowse();
+  if(screen==='home')refreshQuizHome();
+  if(screen==='revise')renderRevise();
   if(screen==='stats')renderStats();
+}
+
+function switchReviseTab(tab){
+  document.getElementById('rtab-modules').classList.toggle('active', tab==='modules');
+  document.getElementById('rtab-fiches').classList.toggle('active', tab==='fiches');
+  document.getElementById('revise-modules-panel').style.display=tab==='modules'?'block':'none';
+  document.getElementById('revise-fiches-panel').style.display=tab==='fiches'?'block':'none';
+  if(tab==='fiches') renderBrowse();
+}
+
+function renderRevise(){
+  renderModuleGrid();
+  // reset to modules tab
+  switchReviseTab('modules');
+}
+
+// filterBrowse from modal — open Revise tab Fiches
+function filterBrowse(catId){
+  browseFilter=catId;
+  showNav('revise');
+  setTimeout(()=>switchReviseTab('fiches'),50);
 }
 
 // ═══════════════════════════════════════════════
@@ -1368,7 +1451,7 @@ function renderBrowse(){
     GROUPS.find(g=>g.id===browseFilter)
       ?QUESTIONS.filter(q=>CATEGORIES.find(c=>c.id===q.cat&&c.group===browseFilter))
       :QUESTIONS.filter(q=>q.cat===browseFilter);
-  document.getElementById('browse-count').textContent=`${qs.length} fiches`;
+  // browse-count removed
   list.innerHTML=qs.map(q=>{
     const cat=CATEGORIES.find(c=>c.id===q.cat);
     const mastered=prog[q.id]?.mastered;
@@ -1472,7 +1555,7 @@ async function init(){
   await openDB();
   prog=await getAllProgress();
   statsData.quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
-  refreshHome();
+  refreshQuizHome();
 
   // Register SW
   if('serviceWorker' in navigator){
