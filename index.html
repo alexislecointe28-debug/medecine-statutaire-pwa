@@ -608,34 +608,43 @@ body{
 // ═══════════════════════════════════════════════
 // DATA — Questions médecine statutaire FPT
 // ═══════════════════════════════════════════════
+const GROUPS = [
+  { id:'A', label:'Conges maladie — Titulaires',  icon:'🏥', color:'#0891B2' },
+  { id:'B', label:'AT/MP, CITIS & RPS',            icon:'⚕️', color:'#DC2626' },
+  { id:'C', label:'Contractuels & Regimes',        icon:'📄', color:'#059669' },
+  { id:'D', label:'Instances & Controle medical',  icon:'⚖️', color:'#7C3AED' },
+  { id:'E', label:'Retour a l emploi',             icon:'🔄', color:'#EA580C' },
+  { id:'F', label:'Remuneration & Carriere',       icon:'💶', color:'#0369A1' },
+];
+
 const CATEGORIES = [
-  { id:'cmo-tit',   label:'CMO – Titulaires',     icon:'🏥', color:'#2DD4BF' },
-  { id:'clm',       label:'CLM – Titulaires',      icon:'🩺', color:'#60A5FA' },
-  { id:'cld',       label:'CLD – Titulaires',      icon:'💊', color:'#A78BFA' },
-  { id:'citis',     label:'AT/MP & CITIS',          icon:'⚕️', color:'#FB923C' },
-  { id:'cmo-ctr',   label:'CMO – Contractuels',    icon:'📄', color:'#34D399' },
-  { id:'conseil',   label:'Conseil Médical',        icon:'⚖️', color:'#FBBF24' },
-  { id:'controle',  label:'Médecine de contrôle',  icon:'🔍', color:'#F87171' },
-  { id:'reclass',   label:'Reclassement & Aptitude', icon:'🔄', color:'#C084FC' },
-  { id:'ppr-tpt',   label:'PPR & Temps partiel ther.', icon:'⏱️', color:'#0EA5E9' },
-  { id:'msc-cdg',   label:'Service MSC & Organisation', icon:'🏛️', color:'#64748B' },
-  { id:'visite',    label:'Visites médicales',       icon:'👨‍⚕️', color:'#10B981' },
-  { id:'assu',      label:'Assurance & Protection',  icon:'🛡️', color:'#F59E0B' },
-  { id:'textes',    label:'Textes de référence',      icon:'📜', color:'#6366F1' },
-  { id:'dispo',     label:'Disponibilité d’office',   icon:'⏸️', color:'#94A3B8' },
-  { id:'mp-at',     label:'AT/MP approfondis',         icon:'🔬', color:'#EF4444' },
-  { id:'stagiaire', label:'Fonctionnaire stagiaire',   icon:'🎓', color:'#8B5CF6' },
-  { id:'reforme',   label:'Réformes 2024-2025',        icon:'🆕', color:'#DC2626' },
-  { id:'cnracl',    label:'CNRACL & IRCANTEC',         icon:'🏦', color:'#0369A1' },
-  { id:'rifseep',   label:'RIFSEEP & Rég. indemnitaire', icon:'💶', color:'#16A34A' },
-  { id:'rechute',   label:'Rechute AT/MP',               icon:'🔁', color:'#B91C1C' },
-  { id:'divers',    label:'Cas particuliers & Jurisprud.', icon:'⚡', color:'#7C3AED' },
-  { id:'subroga',   label:'Subrogation & IJ CPAM',    icon:'💳', color:'#0369A1' },
-  { id:'maternite', label:'Congé maternité FPT',      icon:'🤱', color:'#BE185D' },
-  { id:'carriere',  label:'Droits carrière & maladie', icon:'📈', color:'#065F46' },
-  { id:'fiphfp',    label:'FIPHFP & Handicap',          icon:'♿', color:'#1D4ED8' },
-  { id:'protfonc',  label:'Protection fonctionnelle',   icon:'🛡️', color:'#7C2D12' },
-  { id:'rps',       label:'RPS, Burn-out & CITIS',      icon:'🧠', color:'#5B21B6' },
+  { id:'cmo-tit',   label:'CMO – Titulaires',          icon:'🏥', color:'#0891B2', group:'A' },
+  { id:'clm',       label:'CLM – Titulaires',           icon:'🩺', color:'#0E7490', group:'A' },
+  { id:'cld',       label:'CLD – Titulaires',           icon:'💊', color:'#155E75', group:'A' },
+  { id:'dispo',     label:'Disponibilite d office',     icon:'⏸️', color:'#64748B', group:'A' },
+  { id:'reforme',   label:'Reformes 2024-2025',         icon:'🆕', color:'#DC2626', group:'A' },
+  { id:'citis',     label:'AT/MP & CITIS',              icon:'⚕️', color:'#B91C1C', group:'B' },
+  { id:'mp-at',     label:'AT/MP approfondis',          icon:'🔬', color:'#DC2626', group:'B' },
+  { id:'rechute',   label:'Rechute AT/MP',              icon:'🔁', color:'#EF4444', group:'B' },
+  { id:'rps',       label:'RPS, Burn-out & CITIS',      icon:'🧠', color:'#F87171', group:'B' },
+  { id:'cmo-ctr',   label:'CMO – Contractuels',         icon:'📄', color:'#059669', group:'C' },
+  { id:'stagiaire', label:'Fonctionnaire stagiaire',    icon:'🎓', color:'#047857', group:'C' },
+  { id:'cnracl',    label:'CNRACL & IRCANTEC',          icon:'🏦', color:'#065F46', group:'C' },
+  { id:'subroga',   label:'Subrogation & IJ CPAM',      icon:'💳', color:'#0369A1', group:'C' },
+  { id:'conseil',   label:'Conseil Medical',            icon:'⚖️', color:'#7C3AED', group:'D' },
+  { id:'controle',  label:'Medecine de controle',       icon:'🔍', color:'#6D28D9', group:'D' },
+  { id:'msc-cdg',   label:'Service MSC & CDG',          icon:'🏛️', color:'#5B21B6', group:'D' },
+  { id:'visite',    label:'Visites medicales',          icon:'👨‍⚕️', color:'#4C1D95', group:'D' },
+  { id:'textes',    label:'Textes de reference',        icon:'📜', color:'#6366F1', group:'D' },
+  { id:'reclass',   label:'Reclassement & Aptitude',   icon:'🔄', color:'#EA580C', group:'E' },
+  { id:'ppr-tpt',   label:'PPR & Temps partiel ther.',  icon:'⏱️', color:'#C2410C', group:'E' },
+  { id:'fiphfp',    label:'FIPHFP & Handicap',          icon:'♿', color:'#9A3412', group:'E' },
+  { id:'protfonc',  label:'Protection fonctionnelle',   icon:'🛡️', color:'#7C2D12', group:'E' },
+  { id:'rifseep',   label:'RIFSEEP & Reg. indemnitaire',icon:'💶', color:'#0369A1', group:'F' },
+  { id:'assu',      label:'Assurance & Protection soc.',icon:'🛡️', color:'#1D4ED8', group:'F' },
+  { id:'carriere',  label:'Droits carriere & maladie',  icon:'📈', color:'#1E40AF', group:'F' },
+  { id:'maternite', label:'Conge maternite FPT',        icon:'🤱', color:'#BE185D', group:'F' },
+  { id:'divers',    label:'Cas particuliers & Jurisp.', icon:'⚡', color:'#374151', group:'F' },
 ];
 
 const QUESTIONS = [
@@ -1034,34 +1043,48 @@ async function refreshHome(){
 function renderModuleGrid(){
   const grid=document.getElementById('module-grid');
   grid.innerHTML='';
-  CATEGORIES.forEach(cat=>{
-    const qs=QUESTIONS.filter(q=>q.cat===cat.id);
-    const seen=qs.filter(q=>prog[q.id]).length;
-    const ok=qs.filter(q=>prog[q.id]?.mastered).length;
-    const pct=qs.length>0?Math.round(ok/qs.length*100):0;
-    const circ=2*Math.PI*15; // r=15
-    const offset=circ-(pct/100*circ);
-    const card=document.createElement('div');
-    card.className='module-card';
-    card.onclick=()=>openModuleModal(cat.id);
-    card.innerHTML=`
-      <div class="module-icon" style="background:${cat.color}18;color:${cat.color}">${cat.icon}</div>
-      <div class="module-info">
-        <div class="module-name">${cat.label}</div>
-        <div class="module-meta">${qs.length} fiches · ${seen} vues · ${ok} maîtrisées</div>
-      </div>
-      <div class="module-prog">
-        <div class="prog-ring">
-          <svg width="36" height="36" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" class="ring-bg"/>
-            <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" stroke="${cat.color}" stroke-linecap="round"
-              stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transform-origin:center;transform:rotate(-90deg)"/>
-          </svg>
-          <div class="ring-text">${pct}%</div>
+  GROUPS.forEach(grp=>{
+    const cats=CATEGORIES.filter(c=>c.group===grp.id);
+    const groupQs=cats.flatMap(c=>QUESTIONS.filter(q=>q.cat===c.id));
+    const groupOk=groupQs.filter(q=>prog[q.id]?.mastered).length;
+    const groupPct=groupQs.length>0?Math.round(groupOk/groupQs.length*100):0;
+    // Titre du groupe
+    const header=document.createElement('div');
+    header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:4px 0 6px;margin-top:8px;border-bottom:2px solid '+grp.color+'30;margin-bottom:2px;';
+    header.innerHTML=`
+      <span style="font-size:12px;font-weight:700;color:${grp.color};text-transform:uppercase;letter-spacing:.07em">${grp.icon} ${grp.label}</span>
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3)">${groupOk}/${groupQs.length}</span>`;
+    grid.appendChild(header);
+    // Modules du groupe
+    cats.forEach(cat=>{
+      const qs=QUESTIONS.filter(q=>q.cat===cat.id);
+      const seen=qs.filter(q=>prog[q.id]).length;
+      const ok=qs.filter(q=>prog[q.id]?.mastered).length;
+      const pct=qs.length>0?Math.round(ok/qs.length*100):0;
+      const circ=2*Math.PI*15;
+      const offset=circ-(pct/100*circ);
+      const card=document.createElement('div');
+      card.className='module-card';
+      card.style.cssText='margin-bottom:6px;';
+      card.onclick=()=>openModuleModal(cat.id);
+      card.innerHTML=`
+        <div class="module-icon" style="background:${cat.color}18;color:${cat.color}">${cat.icon}</div>
+        <div class="module-info">
+          <div class="module-name">${cat.label}</div>
+          <div class="module-meta">${qs.length} fiches · ${seen} vues · ${ok} maîtrisées</div>
         </div>
-      </div>
-    `;
-    grid.appendChild(card);
+        <div class="module-prog">
+          <div class="prog-ring">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" class="ring-bg"/>
+              <circle cx="18" cy="18" r="15" fill="none" stroke-width="3" stroke="${cat.color}" stroke-linecap="round"
+                stroke-dasharray="${circ}" stroke-dashoffset="${offset}" style="transform-origin:center;transform:rotate(-90deg)"/>
+            </svg>
+            <div class="ring-text">${pct}%</div>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
   });
 }
 
@@ -1077,7 +1100,7 @@ function openModuleModal(catId){
   const modes=[
     {icon:'🃏',name:'Flashcards',desc:'Révision rapide par fiches',fn:()=>{closeModal();startModule(catId,'flash');}},
     {icon:'⚡',name:'Quiz Flash (10Q)',desc:'10 questions adaptatives',fn:()=>{closeModal();startModule(catId,'quiz');}},
-    {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();filterBrowse(catId);}},
+    {icon:'📋',name:'Parcourir',desc:'Voir toutes les fiches du module',fn:()=>{closeModal();browseFilter=catId;showNav('browse');}},
   ];
   modes.forEach(m=>{
     const el=document.createElement('div');
@@ -1331,12 +1354,20 @@ function filterBrowse(catId){
 function renderBrowse(){
   const filters=document.getElementById('browse-filters');
   filters.innerHTML=`<div class="filter-chip ${browseFilter==='all'?'active':''}" onclick="setBrowseFilter('all')">Toutes (${QUESTIONS.length})</div>`+
+    GROUPS.map(g=>{
+      const cats=CATEGORIES.filter(c=>c.group===g.id);
+      const n=cats.flatMap(c=>QUESTIONS.filter(q=>q.cat===c.id)).length;
+      return `<div class="filter-chip ${browseFilter===g.id?'active':''}" onclick="setBrowseFilter('${g.id}')">${g.icon} ${g.label} (${n})</div>`;
+    }).join('')+
     CATEGORIES.map(c=>{
       const n=QUESTIONS.filter(q=>q.cat===c.id).length;
-      return `<div class="filter-chip ${browseFilter===c.id?'active':''}" onclick="setBrowseFilter('${c.id}')">${c.icon} ${c.label.split('–')[0].trim()} (${n})</div>`;
+      return `<div class="filter-chip ${browseFilter===c.id?'active':''}" onclick="setBrowseFilter('${c.id}')" style="font-size:10px;opacity:.85">${c.icon} ${c.label} (${n})</div>`;
     }).join('');
   const list=document.getElementById('browse-list');
-  const qs=browseFilter==='all'?QUESTIONS:QUESTIONS.filter(q=>q.cat===browseFilter);
+  const qs=browseFilter==='all'?QUESTIONS:
+    GROUPS.find(g=>g.id===browseFilter)
+      ?QUESTIONS.filter(q=>CATEGORIES.find(c=>c.id===q.cat&&c.group===browseFilter))
+      :QUESTIONS.filter(q=>q.cat===browseFilter);
   document.getElementById('browse-count').textContent=`${qs.length} fiches`;
   list.innerHTML=qs.map(q=>{
     const cat=CATEGORIES.find(c=>c.id===q.cat);
