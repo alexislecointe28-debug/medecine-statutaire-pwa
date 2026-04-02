@@ -513,6 +513,13 @@ body{
 .domain-btn .db-bar{height:3px;border-radius:99px;background:var(--border);margin-top:8px;overflow:hidden;}
 .domain-btn .db-bar-fill{height:100%;border-radius:99px;transition:width .3s;}
 .domain-btn .db-status{
+  font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;
+  display:inline-flex;align-items:center;gap:3px;margin-top:6px;
+}
+.db-status.ready{background:rgba(5,150,105,.12);color:#059669;}
+.db-status.progress{background:rgba(245,158,11,.12);color:#D97706;}
+.db-status.start{background:rgba(220,38,38,.1);color:#DC2626;}
+.domain-btn .db-status{
   display:inline-flex;align-items:center;gap:4px;
   font-size:10px;font-weight:700;border-radius:99px;
   padding:2px 7px;margin-top:6px;
@@ -2022,6 +2029,19 @@ function shareScore(pct, score, total){
     navigator.share({title:'Mon score – MédStat FPT', text:txt}).catch(()=>{});
   } else {
     navigator.clipboard.writeText(txt).then(()=>alert('Score copié dans le presse-papiers !')).catch(()=>alert(txt));
+  }
+}
+
+function shareScore(pct, score, total){
+  const emoji = pct>=80?'🏆':pct>=50?'👍':'💪';
+  const text = `${emoji} Examen blanc Médecine Statutaire FPT\n${score}/${total} bonnes réponses · ${pct}%\n\nRévisez sur : https://medecine-statutaire-pwa.vercel.app`;
+  if(navigator.share){
+    navigator.share({title:'Mon score Médecine Statutaire FPT', text}).catch(()=>{});
+  } else {
+    navigator.clipboard?.writeText(text).then(()=>alert('Score copié dans le presse-papier !')).catch(()=>{
+      // Fallback : prompt
+      prompt('Copie ce texte :', text);
+    });
   }
 }
 
