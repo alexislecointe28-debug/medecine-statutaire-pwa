@@ -469,6 +469,71 @@ body{
 .domain-btn .db-bar{height:3px;border-radius:99px;background:var(--border);margin-top:8px;overflow:hidden;}
 .domain-btn .db-bar-fill{height:100%;border-radius:99px;transition:width .3s;}
 
+/* ── EXAM TIMER ── */
+.exam-timer-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 20px;background:rgba(220,38,38,.05);
+  border-bottom:1px solid rgba(220,38,38,.12);
+}
+.exam-timer-label{font-size:11px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:.06em;}
+.exam-timer-clock{font-size:22px;font-weight:700;color:#DC2626;font-family:'DM Mono',monospace;letter-spacing:.05em;}
+.exam-timer-clock.warn{color:#F59E0B;}
+.exam-timer-clock.danger{color:#DC2626;animation:pulse .8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ── SCORE DE CONFIANCE ── */
+.confidence-wrap{
+  display:flex;gap:8px;padding:12px 0 4px;
+  flex-direction:column;
+}
+.conf-label{font-size:12px;font-weight:600;color:var(--text3);text-align:center;margin-bottom:2px;}
+.conf-btns{display:flex;gap:8px;}
+.conf-btn{
+  flex:1;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--card);font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .15s;text-align:center;font-family:'DM Sans',sans-serif;
+}
+.conf-btn:active{transform:scale(.97);}
+.conf-btn.knew{border-color:rgba(5,150,105,.4);background:rgba(5,150,105,.07);color:#059669;}
+.conf-btn.guessed{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.07);color:#D97706;}
+.conf-btn.wrong{border-color:rgba(220,38,38,.4);background:rgba(220,38,38,.07);color:#DC2626;}
+
+/* ── PIÈGE ENRICHI ── */
+.trap-box{
+  margin-top:10px;padding:10px 12px;border-radius:10px;
+  background:rgba(220,38,38,.06);border-left:3px solid #DC2626;
+  font-size:12px;color:var(--text2);line-height:1.5;
+}
+.trap-box strong{color:#DC2626;}
+
+/* ── STREAK ── */
+.streak-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:var(--card);border-radius:14px;
+  margin-bottom:16px;border:1px solid var(--border);
+}
+.streak-left{display:flex;align-items:center;gap:8px;}
+.streak-fire{font-size:20px;}
+.streak-count{font-size:22px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;}
+.streak-label{font-size:12px;color:var(--text3);}
+.streak-msg{font-size:12px;color:var(--text3);font-style:italic;}
+
+/* ── RAPPORT HEBDO ── */
+.weekly-section{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+.weekly-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;}
+.weekly-empty{font-size:13px;color:var(--text3);padding:12px 0;font-style:italic;}
+.weekly-item{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.weekly-item:last-child{border-bottom:none;}
+.weekly-rank{font-size:11px;font-weight:700;color:var(--text3);min-width:20px;
+  font-family:'DM Mono',monospace;padding-top:2px;}
+.weekly-q{font-size:12px;color:var(--text);flex:1;line-height:1.4;}
+.weekly-err{font-size:11px;font-weight:700;color:#DC2626;font-family:'DM Mono',monospace;
+  background:rgba(220,38,38,.08);padding:2px 7px;border-radius:6px;white-space:nowrap;}
+
 /* ── RÉVISER SCREEN ── */
 .revise-tabs{
   display:flex;border-bottom:1px solid var(--border);
@@ -495,12 +560,25 @@ body{
       </div>
     </div>
     <div class="quiz-hero">
+      <div class="streak-bar" id="streak-bar" style="display:none">
+        <div class="streak-left">
+          <span class="streak-fire">🔥</span>
+          <div>
+            <div class="streak-count" id="streak-count">0</div>
+            <div class="streak-label">jours consécutifs</div>
+          </div>
+        </div>
+        <div class="streak-msg" id="streak-msg"></div>
+      </div>
       <div class="quiz-headline">Quiz adaptatif</div>
       <button class="btn-quiz-main" onclick="startAll('quiz')">
         ⚡ Lancer le Quiz Flash <span class="q-arrow">→</span>
       </button>
       <button class="btn-quiz-weak" onclick="startAll('weak')">
         🔥 Travailler mes erreurs
+      </button>
+      <button onclick="startAll('exam')" style="width:100%;padding:13px 20px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);background:rgba(124,58,237,.05);color:#7C3AED;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;">
+        📋 Examen blanc · 20Q · 20 min
       </button>
       <div class="progress-strip">
         <div class="progress-strip-fill" id="home-prog-fill" style="width:0%"></div>
@@ -585,9 +663,13 @@ body{
         <div class="header-title" id="quiz-title">Quiz</div>
         <div class="header-sub" id="quiz-subtitle"></div>
       </div>
-      <button class="btn-icon" onclick="showNav('home')">
+      <button class="btn-icon" onclick="resetAndGoHome()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
+    </div>
+    <div id="exam-timer-bar" class="exam-timer-bar" style="display:none">
+      <span class="exam-timer-label">📋 Examen blanc</span>
+      <span class="exam-timer-clock" id="exam-clock">20:00</span>
     </div>
     <div style="padding:12px 20px 0;">
       <div class="flash-progress-row">
@@ -626,6 +708,10 @@ body{
       </div>
       <div class="section-label" style="padding:0 0 10px">Par module</div>
       <div class="cat-bars" id="cat-bars"></div>
+      <div class="weekly-section">
+        <div class="weekly-title">📅 Erreurs cette semaine</div>
+        <div id="weekly-report"></div>
+      </div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button onclick="exportProgress()" style="flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">📤 Exporter</button>
         <label style="flex:1;padding:13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;">
@@ -1072,6 +1158,10 @@ let prog={}, flashQueue=[], flashIdx=0, flashCorrect=0, flashFlipped=false;
 let quizQueue=[], quizIdx=0, quizScore=0, quizAnswered=false;
 let currentModule=null, quizFinished=false;
 let statsData={quizzes:0};
+// Exam mode
+let examMode=false, examTimer=null, examSecondsLeft=1200, examErrors=[];
+// Confidence
+let pendingConfidence=null;
 
 // ═══════════════════════════════════════════════
 // NAVIGATION
@@ -1207,15 +1297,19 @@ function getWeight(q){
   if(!p) return 10; // jamais vue → priorité max
   const days=(Date.now()-p.lastSeen)/86400000;
   const errors=p.errorCount||0;
-  if(!p.mastered){
-    // Non maîtrisée : plus d'erreurs = poids plus élevé
+  const conf=p.confidence; // 'knew'|'guessed'|'wrong'
+  if(!p.mastered || conf==='wrong'){
     return Math.min(6+errors*2, 16);
   }
-  // Maîtrisée : révision espacée
+  if(conf==='guessed'){
+    // Correct mais deviné : reste prioritaire
+    return Math.max(5, Math.min(4+errors, 10));
+  }
+  // Maîtrisé avec confiance : révision espacée
   if(days<1) return 1;
   if(days<3) return 2;
   if(days<7) return 3;
-  return 5; // > 1 semaine : à retravailler
+  return 5;
 }
 
 // ── Sélection aléatoire pondérée (weighted random) ──
@@ -1244,7 +1338,34 @@ function startAll(mode){
     if(weak.length===0){alert('Toutes les fiches sont maîtrisées ! Réinitialisez pour recommencer.');return;}
     const sel=selectAdaptive(weak,10);
     startQuiz(sel,'Points faibles',`${Math.min(10,weak.length)} questions ciblées`);
+  } else if(mode==='exam'){
+    startExam();
   }
+}
+
+function startExam(){
+  examMode=true;
+  examErrors=[];
+  examSecondsLeft=1200; // 20 minutes
+  const sel=shuffle(QUESTIONS).slice(0,20);
+  startQuiz(sel,'Examen blanc','20 questions · 20 min');
+  // Lancer le timer
+  document.getElementById('exam-timer-bar').style.display='flex';
+  if(examTimer)clearInterval(examTimer);
+  examTimer=setInterval(()=>{
+    examSecondsLeft--;
+    const m=Math.floor(examSecondsLeft/60);
+    const s=examSecondsLeft%60;
+    const cl=document.getElementById('exam-clock');
+    if(cl){
+      cl.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+      cl.className='exam-timer-clock'+(examSecondsLeft<=120?' danger':examSecondsLeft<=300?' warn':'');
+    }
+    if(examSecondsLeft<=0){
+      clearInterval(examTimer);
+      showQuizResult();
+    }
+  },1000);
 }
 
 function startModule(catId,mode){
@@ -1337,8 +1458,15 @@ function showFlashResult(){
 // QUIZ QCM
 // ═══════════════════════════════════════════════
 function startQuiz(qs,title,sub){
-  quizQueue=shuffle(qs);
+  quizQueue=qs; // already shuffled by caller or startExam
   quizIdx=0;quizScore=0;quizAnswered=false;quizFinished=false;
+  if(!examMode){
+    // Reset exam state
+    if(examTimer){clearInterval(examTimer);examTimer=null;}
+    const tb=document.getElementById('exam-timer-bar');
+    if(tb)tb.style.display='none';
+    examErrors=[];
+  }
   document.getElementById('quiz-title').textContent=title;
   document.getElementById('quiz-subtitle').textContent=sub;
   showNav('quiz');
@@ -1384,19 +1512,66 @@ async function answerQuiz(chosen,correct){
     if(idx===correct)o.classList.add('correct');
     else if(idx===chosen&&!isCorrect)o.classList.add('wrong');
   });
-  document.getElementById('qcm-expl').classList.add('show');
   const q=quizQueue[quizIdx];
   const ex=prog[q.id]||{};
-  const upd={seen:true,mastered:isCorrect,lastSeen:Date.now(),
-    errorCount:(ex.errorCount||0)+(isCorrect?0:1),
-    correctCount:(ex.correctCount||0)+(isCorrect?1:0)};
-  await setProgress(q.id,upd);
-  prog[q.id]=upd;
+
+  if(examMode){
+    // Examen : pas d'explication, pas de confiance, juste suivant
+    if(!isCorrect) examErrors.push({q, chosen});
+    const upd={seen:true,mastered:isCorrect,lastSeen:Date.now(),
+      errorCount:(ex.errorCount||0)+(isCorrect?0:1),
+      correctCount:(ex.correctCount||0)+(isCorrect?1:0)};
+    await setProgress(q.id,upd); prog[q.id]=upd;
+    document.getElementById('qcm-next-wrap').innerHTML=`
+      <button class="btn-primary" onclick="nextQuiz()" style="margin-top:4px">
+        ${quizIdx+1<quizQueue.length?'Question suivante →':'Voir les résultats'}
+      </button>`;
+  } else {
+    // Mode normal : explication enrichie + score de confiance
+    const explEl=document.getElementById('qcm-expl');
+    explEl.classList.add('show');
+    // Piège enrichi si erreur
+    let trapHtml='';
+    if(!isCorrect){
+      const wrongOpt=q.opts[chosen]||'';
+      trapHtml=`<div class="trap-box"><strong>⚠️ Erreur fréquente :</strong> "${wrongOpt}" — retenir que ${q.kp||q.opts[correct]}</div>`;
+    }
+    explEl.innerHTML=`<strong>💡 Explication :</strong><br>${q.expl}${q.kp?`<div class="browse-kp">${q.kp}</div>`:''}${trapHtml}`;
+
+    // Boutons de confiance
+    document.getElementById('qcm-next-wrap').innerHTML=`
+      <div class="confidence-wrap">
+        <div class="conf-label">Tu le savais vraiment ?</div>
+        <div class="conf-btns">
+          <button class="conf-btn knew" onclick="applyConfidence('knew',${isCorrect})">✅ Je savais</button>
+          <button class="conf-btn guessed" onclick="applyConfidence('guessed',${isCorrect})">🎲 Deviné</button>
+          <button class="conf-btn wrong" onclick="applyConfidence('wrong',${isCorrect})">❌ Pas sûr</button>
+        </div>
+      </div>`;
+    // Sauvegarder provisoirement sans confiance
+    const upd={seen:true,mastered:isCorrect,lastSeen:Date.now(),
+      errorCount:(ex.errorCount||0)+(isCorrect?0:1),
+      correctCount:(ex.correctCount||0)+(isCorrect?1:0)};
+    await setProgress(q.id,upd); prog[q.id]=upd;
+  }
+}
+
+async function applyConfidence(conf,wasCorrect){
+  const q=quizQueue[quizIdx];
+  const ex=prog[q.id]||{};
+  // Ajuster selon la confiance
+  let mastered=wasCorrect;
+  let errBonus=0;
+  if(conf==='guessed'&&wasCorrect) mastered=false; // deviné correct = pas maîtrisé
+  if(conf==='wrong') errBonus=1;
+  const upd={...ex, mastered, confidence:conf,
+    errorCount:(ex.errorCount||0)+errBonus};
+  await setProgress(q.id,upd); prog[q.id]=upd;
+  // Afficher bouton suivant
   document.getElementById('qcm-next-wrap').innerHTML=`
     <button class="btn-primary" onclick="nextQuiz()" style="margin-top:4px">
       ${quizIdx+1<quizQueue.length?'Question suivante →':'Voir les résultats'}
-    </button>
-  `;
+    </button>`;
 }
 
 function nextQuiz(){
@@ -1406,22 +1581,50 @@ function nextQuiz(){
 }
 
 function showQuizResult(){
+  if(examTimer){clearInterval(examTimer);examTimer=null;}
   const pct=Math.round(quizScore/quizQueue.length*100);
   statsData.quizzes=(statsData.quizzes||0)+1;
   localStorage.setItem('medstat-quizzes',statsData.quizzes);
   const scoreClass=pct>=80?'great':pct>=50?'ok':'bad';
-  const content=document.getElementById('qcm-content');
-  content.innerHTML=`
+  const el=document.getElementById('qcm-content');
+
+  let examReview='';
+  if(examMode && examErrors.length>0){
+    examReview=`<div style="margin-top:16px;text-align:left">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">❌ Erreurs à retravailler (${examErrors.length})</div>
+      ${examErrors.map(({q,chosen})=>`
+        <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:12px;color:var(--text);margin-bottom:4px">${q.q}</div>
+          <div style="font-size:11px;color:#DC2626">Ta réponse : ${q.opts[chosen]}</div>
+          <div style="font-size:11px;color:#059669">Bonne réponse : ${q.opts[q.ans]}</div>
+          ${q.kp?`<div style="font-size:10px;color:var(--text3);font-style:italic;margin-top:3px">${q.kp}</div>`:''}
+        </div>`).join('')}
+    </div>`;
+  }
+
+  el.innerHTML=`
     <div class="qcm-score-card fade-up">
       <div class="score-big ${scoreClass}">${pct}%</div>
       <div class="score-label">${quizScore}/${quizQueue.length} bonnes réponses</div>
+      ${examMode?`<div style="font-size:12px;color:var(--text3);margin-top:4px">Temps utilisé : ${Math.floor((1200-examSecondsLeft)/60)}min${(1200-examSecondsLeft)%60}s</div>`:''}
       <div style="margin-top:8px;font-size:13px;color:var(--text2)">${pct>=80?'🏆 Excellent niveau !':pct>=50?'👍 Bonne progression !':'💪 Continuez les révisions !'}</div>
     </div>
-    <button class="btn-primary" onclick="startAll('quiz')">⚡ Nouveau Quiz Flash</button>
+    ${examReview}
+    <button class="btn-primary" style="margin-top:12px" onclick="resetAndGoHome()">⚡ Nouveau Quiz Flash</button>
     <button class="btn-secondary" onclick="startAll('weak')" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:var(--red)">🔥 Cibler mes erreurs</button>
-    <button class="btn-secondary" onclick="showNav('home')">Retour à l'accueil</button>
+    <button class="btn-secondary" onclick="resetAndGoHome()">Retour à l'accueil</button>
   `;
   document.getElementById('quiz-prog').style.width='100%';
+  const tb=document.getElementById('exam-timer-bar');
+  if(tb)tb.style.display='none';
+}
+
+function resetAndGoHome(){
+  if(examTimer){clearInterval(examTimer);examTimer=null;}
+  examMode=false;examErrors=[];
+  const tb=document.getElementById('exam-timer-bar');
+  if(tb)tb.style.display='none';
+  showNav('home');
 }
 
 // ═══════════════════════════════════════════════
@@ -1498,6 +1701,7 @@ async function renderStats(){
   document.getElementById('st-seen').textContent=seen;
   const quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
   document.getElementById('st-streak').textContent=quizzes;
+  renderWeeklyReport();
   const bars=document.getElementById('cat-bars');
   bars.innerHTML=CATEGORIES.map(cat=>{
     const qs=QUESTIONS.filter(q=>q.cat===cat.id);
@@ -1555,6 +1759,7 @@ async function init(){
   await openDB();
   prog=await getAllProgress();
   statsData.quizzes=parseInt(localStorage.getItem('medstat-quizzes')||'0');
+  updateStreak();
   refreshQuizHome();
 
   // Register SW
