@@ -85,6 +85,7 @@ body{
 }
 .btn-icon:active{transform:scale(.93);}
 .btn-icon svg{width:16px;height:16px;}
+.logo-btn:active{opacity:.7;}
 
 /* ── NAV ── */
 .nav{
@@ -597,7 +598,14 @@ body{
 
       <!-- Header + streak -->
       <div class="dash-header">
-        <div class="dash-title">Médecine Statutaire FPT</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="9" fill="#0891B2"/>
+            <rect x="14" y="8" width="4" height="16" rx="2" fill="white"/>
+            <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
+          </svg>
+          <div class="dash-title">Médecine Statutaire FPT</div>
+        </div>
         <div class="dash-streak" id="dash-streak" style="display:none">
           <span class="dash-streak-fire">🔥</span>
           <span class="dash-streak-val" id="streak-count">0</span>
@@ -678,7 +686,14 @@ body{
   <!-- RÉVISER (modules + parcourir) -->
   <div class="screen" id="screen-revise">
     <div class="header">
-      <div><div class="header-title">Réviser</div></div>
+      <button onclick="resetAndGoHome()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;" aria-label="Accueil">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="9" fill="#0891B2"/>
+    <rect x="14" y="8" width="4" height="16" rx="2" fill="white"/>
+    <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
+  </svg>
+</button>
+      <div style="flex:1;margin-left:10px"><div class="header-title">Réviser</div></div>
     </div>
     <div class="revise-tabs">
       <button class="revise-tab active" id="rtab-modules" onclick="switchReviseTab('modules')">Modules</button>
@@ -696,7 +711,14 @@ body{
   <!-- FLASHCARDS -->
   <div class="screen" id="screen-flash">
     <div class="header">
-      <div>
+      <button onclick="resetAndGoHome()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;" aria-label="Accueil">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="9" fill="#0891B2"/>
+    <rect x="14" y="8" width="4" height="16" rx="2" fill="white"/>
+    <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
+  </svg>
+</button>
+      <div style="flex:1;margin-left:10px">
         <div class="header-title" id="flash-title">Flashcards</div>
         <div class="header-sub" id="flash-subtitle"></div>
       </div>
@@ -742,7 +764,14 @@ body{
   <!-- QCM -->
   <div class="screen" id="screen-quiz">
     <div class="header">
-      <div>
+      <button onclick="resetAndGoHome()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;" aria-label="Accueil">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="9" fill="#0891B2"/>
+    <rect x="14" y="8" width="4" height="16" rx="2" fill="white"/>
+    <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
+  </svg>
+</button>
+      <div style="flex:1;margin-left:10px">
         <div class="header-title" id="quiz-title">Quiz</div>
         <div class="header-sub" id="quiz-subtitle"></div>
       </div>
@@ -767,7 +796,16 @@ body{
 
   <!-- STATS -->
   <div class="screen" id="screen-stats">
-    <div class="header"><div class="header-title">Progression</div></div>
+    <div class="header">
+      <button onclick="resetAndGoHome()" style="background:none;border:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent;" aria-label="Accueil">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <rect width="32" height="32" rx="9" fill="#0891B2"/>
+    <rect x="14" y="8" width="4" height="16" rx="2" fill="white"/>
+    <rect x="8" y="14" width="16" height="4" rx="2" fill="white"/>
+  </svg>
+</button>
+      <div style="flex:1;margin-left:10px"><div class="header-title">Progression</div></div>
+    </div>
     <div class="stats-screen">
       <div class="stats-title">Tableau de bord</div>
       <div class="global-ring-wrap">
