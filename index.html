@@ -506,12 +506,52 @@ body{
 }
 .trap-box strong{color:#DC2626;}
 
-/* ── STREAK ── */
-.streak-bar{
+/* ── DASHBOARD ── */
+.dash{padding:0 20px 8px;}
+.dash-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:10px 20px;background:var(--card);border-radius:14px;
-  margin-bottom:16px;border:1px solid var(--border);
+  padding:16px 0 14px;
 }
+.dash-title{font-size:17px;font-weight:700;color:var(--text);}
+.dash-streak{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.18);
+  border-radius:20px;padding:4px 10px;
+}
+.dash-streak-fire{font-size:14px;}
+.dash-streak-val{font-size:13px;font-weight:700;color:#EA580C;font-family:'DM Mono',monospace;}
+.dash-streak-lbl{font-size:11px;color:#EA580C;opacity:.75;}
+
+.dash-ring-row{
+  display:flex;align-items:center;gap:16px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:16px;margin-bottom:12px;
+}
+.dash-ring-wrap{position:relative;flex-shrink:0;}
+.dash-ring-wrap svg{display:block;}
+.dash-ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.dash-ring-pct{font-size:18px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;line-height:1;}
+.dash-ring-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px;}
+.dash-ring-info{flex:1;}
+.dash-ring-info-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.dash-prog-bar-full{height:6px;border-radius:99px;background:var(--border);overflow:hidden;margin-bottom:8px;}
+.dash-prog-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#0891B2,#06B6D4);transition:width .5s;}
+.dash-kpis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;}
+.dash-kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:10px 10px 8px;text-align:center;
+}
+.dash-kpi-val{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;line-height:1;}
+.dash-kpi-lbl{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.2;}
+
+/* ── ACTIONS ── */
+.dash-actions{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+
+/* ── STREAK (legacy, kept for compat) ── */
+.streak-bar{display:none;}
 .streak-left{display:flex;align-items:center;gap:8px;}
 .streak-fire{font-size:20px;}
 .streak-count{font-size:22px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;}
@@ -553,42 +593,85 @@ body{
 
   <!-- QUIZ (écran principal) -->
   <div class="screen active" id="screen-home">
-    <div class="header">
-      <div>
-        <div class="header-title">Médecine Statutaire FPT</div>
-        <div class="header-sub" id="quiz-home-sub">Chargement…</div>
+    <div class="dash">
+
+      <!-- Header + streak -->
+      <div class="dash-header">
+        <div class="dash-title">Médecine Statutaire FPT</div>
+        <div class="dash-streak" id="dash-streak" style="display:none">
+          <span class="dash-streak-fire">🔥</span>
+          <span class="dash-streak-val" id="streak-count">0</span>
+          <span class="dash-streak-lbl">j.</span>
+        </div>
       </div>
-    </div>
-    <div class="quiz-hero">
-      <div class="streak-bar" id="streak-bar" style="display:none">
-        <div class="streak-left">
-          <span class="streak-fire">🔥</span>
-          <div>
-            <div class="streak-count" id="streak-count">0</div>
-            <div class="streak-label">jours consécutifs</div>
+
+      <!-- Anneau + barre progression -->
+      <div class="dash-ring-row">
+        <div class="dash-ring-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="32" fill="none" stroke-width="6" class="ring-bg"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke-width="6" stroke="#0891B2"
+              stroke-linecap="round" id="dash-ring-fill"
+              stroke-dasharray="201" stroke-dashoffset="201"
+              style="transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset .6s"/>
+          </svg>
+          <div class="dash-ring-center">
+            <div class="dash-ring-pct" id="dash-pct">0%</div>
+            <div class="dash-ring-lbl">global</div>
           </div>
         </div>
-        <div class="streak-msg" id="streak-msg"></div>
+        <div class="dash-ring-info">
+          <div class="dash-ring-info-title" id="dash-tagline">Commence à réviser !</div>
+          <div class="dash-prog-bar-full">
+            <div class="dash-prog-bar-fill" id="home-prog-fill" style="width:0%"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;">
+            <div style="font-size:11px;color:var(--text3)">✅ <span id="dash-ok" style="font-weight:700;color:var(--text)">0</span> maîtrisées</div>
+            <div style="font-size:11px;color:var(--text3)">🔁 <span id="dash-review" style="font-weight:700;color:#D97706">0</span> à revoir</div>
+            <div style="font-size:11px;color:var(--text3)">👁 <span id="dash-seen" style="font-weight:700;color:var(--text)">0</span> vues</div>
+            <div style="font-size:11px;color:var(--text3)">📚 <span id="dash-total" style="font-weight:700;color:var(--text)">0</span> total</div>
+          </div>
+        </div>
       </div>
-      <div class="quiz-headline">Quiz adaptatif</div>
-      <button class="btn-quiz-main" onclick="startAll('quiz')">
-        ⚡ Lancer le Quiz Flash <span class="q-arrow">→</span>
-      </button>
-      <button class="btn-quiz-weak" onclick="startAll('weak')">
-        🔥 Travailler mes erreurs
-      </button>
-      <button onclick="startAll('exam')" style="width:100%;padding:13px 20px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);background:rgba(124,58,237,.05);color:#7C3AED;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;">
-        📋 Examen blanc · 20Q · 20 min
-      </button>
-      <div class="progress-strip">
-        <div class="progress-strip-fill" id="home-prog-fill" style="width:0%"></div>
+
+      <!-- KPIs erreurs récentes -->
+      <div class="dash-kpis">
+        <div class="dash-kpi">
+          <div class="dash-kpi-val" id="kpi-today" style="color:#0891B2">0</div>
+          <div class="dash-kpi-lbl">questions<br>aujourd'hui</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="dash-kpi-val" id="kpi-week-err" style="color:#DC2626">0</div>
+          <div class="dash-kpi-lbl">erreurs<br>cette semaine</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="dash-kpi-val" id="kpi-quiz-total" style="color:#7C3AED">0</div>
+          <div class="dash-kpi-lbl">quiz<br>terminés</div>
+        </div>
       </div>
-      <div class="prog-legend">
-        <span id="home-prog-left">0 maîtrisées</span>
-        <span id="home-prog-right">0%</span>
+
+      <!-- Actions -->
+      <div class="dash-actions">
+        <button class="btn-quiz-main" onclick="startAll('quiz')">
+          ⚡ Quiz Flash adaptatif <span class="q-arrow">→</span>
+        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button class="btn-quiz-weak" style="margin-bottom:0" onclick="startAll('weak')">🔥 Mes erreurs</button>
+          <button onclick="startAll('exam')" style="padding:13px;border-radius:14px;border:1.5px solid rgba(124,58,237,.25);background:rgba(124,58,237,.05);color:#7C3AED;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">📋 Examen</button>
+        </div>
       </div>
+
     </div>
-    <div class="section-label" style="padding-top:4px">Quiz par domaine</div>
+
+    <!-- Streak caché (compat JS) -->
+    <div id="streak-bar" style="display:none">
+      <div class="streak-left"><span class="streak-fire">🔥</span><div>
+        <div class="streak-count" id="streak-count-legacy">0</div>
+        <div class="streak-label">j.</div></div></div>
+      <div class="streak-msg" id="streak-msg"></div>
+    </div>
+
+    <div class="section-label" style="padding:0 20px 6px">Quiz par domaine</div>
     <div class="domain-grid" id="domain-grid"></div>
   </div>
 
