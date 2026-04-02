@@ -512,6 +512,14 @@ body{
 .domain-btn .db-meta{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
 .domain-btn .db-bar{height:3px;border-radius:99px;background:var(--border);margin-top:8px;overflow:hidden;}
 .domain-btn .db-bar-fill{height:100%;border-radius:99px;transition:width .3s;}
+.domain-btn .db-status{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;border-radius:99px;
+  padding:2px 7px;margin-top:6px;
+}
+.db-status.green{background:rgba(5,150,105,.12);color:#059669;}
+.db-status.orange{background:rgba(245,158,11,.12);color:#D97706;}
+.db-status.red{background:rgba(220,38,38,.1);color:#DC2626;}
 
 /* ── EXAM TIMER ── */
 .exam-timer-bar{
@@ -630,6 +638,25 @@ body{
   transition:all .15s;margin-bottom:-1px;
 }
 .revise-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+
+/* ── FICHES SYNTHÈSE ── */
+.synth-section{margin-bottom:20px;}
+.synth-h{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;
+  display:flex;align-items:center;gap:7px;padding-bottom:6px;
+  border-bottom:2px solid var(--cyan);cursor:pointer;justify-content:space-between;}
+.synth-h-icon{transition:transform .2s;}
+.synth-body{overflow:hidden;transition:max-height .3s;}
+.synth-body.collapsed{max-height:0;}
+.synth-table{width:100%;border-collapse:collapse;font-size:12px;}
+.synth-table th{background:var(--bg3);color:var(--text2);font-weight:600;
+  padding:6px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.synth-table td{padding:6px 8px;border-bottom:1px solid var(--border);
+  color:var(--text);vertical-align:top;}
+.synth-table tr:last-child td{border-bottom:none;}
+.synth-table .ok{color:var(--green);font-weight:600;}
+.synth-table .warn{color:var(--yellow);font-weight:600;}
+.synth-table .bad{color:var(--red);font-weight:600;}
+.synth-note{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;line-height:1.4;}
 </style>
 </head>
 <body>
@@ -741,6 +768,7 @@ body{
     <div class="revise-tabs">
       <button class="revise-tab active" id="rtab-modules" onclick="switchReviseTab('modules')">Modules</button>
       <button class="revise-tab" id="rtab-fiches" onclick="switchReviseTab('fiches')">Parcourir</button>
+      <button class="revise-tab" id="rtab-synthese" onclick="switchReviseTab('synthese')">Synthèse</button>
     </div>
     <div id="revise-modules-panel">
       <div class="module-grid" id="module-grid" style="padding-top:12px"></div>
@@ -748,6 +776,9 @@ body{
     <div id="revise-fiches-panel" style="display:none">
       <div class="browse-filters" id="browse-filters"></div>
       <div class="browse-list" id="browse-list"></div>
+    </div>
+    <div id="revise-synthese-panel" style="display:none;padding:12px 20px 24px">
+      <div id="synthese-content"></div>
     </div>
   </div>
 
@@ -939,6 +970,12 @@ body{
 
 <script>
 // ═══════════════════════════════════════════════
+// VERSION
+// ═══════════════════════════════════════════════
+const APP_VERSION = 'v2.0 · 02/04/2026 · build 32230';
+const Q_COUNT = 209;
+
+// ═══════════════════════════════════════════════
 // DATA — Questions médecine statutaire FPT
 // ═══════════════════════════════════════════════
 const GROUPS = [
@@ -949,6 +986,7 @@ const GROUPS = [
   { id:'E', label:'Retour a l emploi',             icon:'🔄', color:'#EA580C' },
   { id:'F', label:'Remuneration & Carriere',       icon:'💶', color:'#0369A1' },
   { id:'G', label:'Cas pratiques',                 icon:'🧩', color:'#0F766E' },
+  { id:'H', label:'Statut & Carriere avancee',     icon:'🎓', color:'#B45309' },
 ];
 
 const CATEGORIES = [
@@ -980,6 +1018,9 @@ const CATEGORIES = [
   { id:'maternite', label:'Conge maternite FPT',        icon:'🤱', color:'#BE185D', group:'F' },
   { id:'divers',    label:'Cas particuliers & Jurisp.', icon:'⚡', color:'#374151', group:'F' },
   { id:'cas-prat',  label:'Situations concrètes',      icon:'🧩', color:'#0F766E', group:'G' },
+  { id:'disciplin', label:'Droit disciplinaire',         icon:'⚖️', color:'#B45309', group:'H' },
+  { id:'positions', label:'Positions statutaires',       icon:'🔄', color:'#92400E', group:'H' },
+  { id:'retraite',  label:'Retraite CNRACL detail',      icon:'🏦', color:'#78350F', group:'H' },
 ];
 
 const QUESTIONS = [
@@ -1227,6 +1268,42 @@ const QUESTIONS = [
 { id:'cp23', cat:'cas-prat', q:"Romain est en demi-traitement (800€). La CPAM verse 700€ d'IJ. Sa collectivité doit-elle compléter ?", opts:["Non, la collectivité ne doit rien de plus","Oui, la collectivité verse la différence (100€) pour atteindre le demi-traitement","Oui, la collectivité complète jusqu'au plein traitement","Non, les IJ remplacent entièrement la rémunération"], ans:1, expl:"L'employeur est tenu de maintenir le demi-traitement. Si les IJ (700€) sont inférieures au demi-traitement (800€), la collectivité verse la différence (100€). Si les IJ dépassaient le DT, rien de plus ne serait dû.", kp:"Demi-traitement : employeur verse la différence si DT > IJ" },
 { id:'cp24', cat:'cas-prat', q:"Sandra est en demi-traitement CLM. La collectivité veut continuer la subrogation. Est-ce possible ?", opts:["Oui, la subrogation est toujours possible en CLM","Non, possible seulement si rémunération maintenue ≥ IJ CPAM","Non, la subrogation est impossible pour les agents CNRACL","Oui, automatiquement en demi-traitement"], ans:1, expl:"La subrogation n'est possible (art. R323-11 CSS) que si le montant de la rémunération maintenue est au moins égal aux IJ. En demi-traitement, les IJ dépassent souvent la rémunération, donc la subrogation n'est généralement plus possible.", kp:"Subrogation : impossible si DT < IJ (cas fréquent en demi-traitement)" },
 { id:'cp25', cat:'cas-prat', q:"Un agent harcelé moralement par son supérieur demande la protection fonctionnelle. L'administration est-elle obligée de l'accorder ?", opts:["Non, le harcèlement interne ne relève pas de la protection fonctionnelle","Oui, dès lors que les conditions légales sont remplies, l'administration y est obligée","Seulement si une plainte pénale a été déposée","Seulement si le harcèlement est prouvé par le tribunal"], ans:1, expl:"Depuis l'arrêt CE du 12/03/2010 (n°308974), le harcèlement moral ouvre droit à la protection fonctionnelle. Dès que les conditions légales sont réunies (y compris harcèlement par un supérieur), l'administration est obligée d'accorder la protection et de faire cesser les agissements.", kp:"Harcèlement moral → protection fonctionnelle obligatoire (CE 2010)" },
+
+// ── DROIT DISCIPLINAIRE ──
+{ id:'dis1', cat:'disciplin', q:"Quelles sont les 4 groupes de sanctions disciplinaires dans la FPT ?", opts:["Avertissement, blâme, exclusion, révocation","1er : avertissement/blâme ; 2e : radiation tableau, abaissement, exclusion 15j ; 3e : rétrogradation, exclusion 3 mois-2 ans ; 4e : mise à retraite d'office, révocation","Simple, grave, très grave, maximale","Oral, écrit, suspensif, définitif"], ans:1, expl:"Le statut FPT prévoit 4 groupes de sanctions. 1er groupe (sans consultation CAP) : avertissement, blâme. 2e groupe : radiation du tableau d'avancement, abaissement d'échelon, exclusion temporaire 1-15 jours. 3e groupe : rétrogradation, exclusion 16 jours-2 ans. 4e groupe : mise à la retraite d'office, révocation.", kp:"4 groupes sanctions : avertissement/blâme → radiation/excl.15j → rétrogradat./excl.2ans → retraite d'office/révocation" },
+{ id:'dis2', cat:'disciplin', q:"Le fonctionnaire a-t-il droit à la communication de son dossier avant toute sanction disciplinaire ?", opts:["Non, seulement pour les sanctions du 3e et 4e groupe","Oui, pour toute sanction, y compris avertissement et blâme","Seulement en cas de saisine du conseil de discipline","Seulement s'il en fait la demande expresse"], ans:1, expl:"Avant toute sanction disciplinaire, même l'avertissement ou le blâme, le fonctionnaire a le droit de consulter l'intégralité de son dossier individuel et de toutes les pièces au dossier de la procédure disciplinaire. Ce droit est garanti par l'article 19 de la loi du 13 juillet 1983.", kp:"Communication dossier : droit absolu avant TOUTE sanction, même blâme" },
+{ id:'dis3', cat:'disciplin', q:"Pour quels groupes de sanctions le conseil de discipline doit-il obligatoirement être saisi ?", opts:["Pour toutes les sanctions sans exception","Pour les sanctions des 2e, 3e et 4e groupes uniquement","Pour les 3e et 4e groupes uniquement","Seulement en cas de contestation de l'agent"], ans:2, expl:"Le conseil de discipline est obligatoirement saisi pour les sanctions des 3e et 4e groupes (rétrogradation, exclusion longue, révocation, mise à la retraite d'office). Pour les sanctions des 1er et 2e groupes, la CAP peut être consultée mais le conseil de discipline n'est pas obligatoirement saisi.", kp:"Conseil de discipline obligatoire : 3e et 4e groupes uniquement" },
+{ id:'dis4', cat:'disciplin', q:"La suspension conservatoire d'un fonctionnaire mis en cause pénalement maintient-elle sa rémunération ?", opts:["Non, toute rémunération est suspendue","Oui, il conserve l'intégralité de son traitement pendant la suspension","Oui, mais réduit à demi-traitement après 1 mois","Oui, jusqu'au jugement, puis régularisation"], ans:1, expl:"La suspension est une mesure conservatoire, non une sanction. L'agent suspendu conserve l'intégralité de son traitement et de ses prestations familiales. Cependant, sa durée ne peut excéder 4 mois, sauf si des poursuites pénales sont engagées.", kp:"Suspension conservatoire : traitement intégral maintenu, max 4 mois (sauf poursuites pénales)" },
+{ id:'dis5', cat:'disciplin', q:"Quel est le délai de prescription des faits fautifs pouvant donner lieu à sanction disciplinaire ?", opts:["1 an à compter des faits","3 ans à compter des faits","Pas de prescription, les faits restent punissables","5 ans pour les fautes graves"], ans:1, expl:"Depuis la loi de transformation de la FP de 2019, les faits passibles d'une sanction disciplinaire ne peuvent donner lieu à sanction au-delà d'un délai de 3 ans à compter de la date à laquelle l'administration a eu connaissance des faits (art. L. 533-6 CGFP).", kp:"Prescription disciplinaire : 3 ans à compter de la connaissance des faits" },
+{ id:'dis6', cat:'disciplin', q:"Un agent sanctionné peut-il demander l'effacement de la sanction de son dossier ?", opts:["Non, la sanction reste ad vitam aeternam","Oui, après 3 ans pour les sanctions du 1er groupe, 10 ans pour les autres","Oui, après une durée variable selon le groupe de sanction si bonne conduite","Non, seulement sa suppression des fichiers RH"], ans:2, expl:"Oui, l'effacement des sanctions est possible : après 3 ans pour avertissement et blâme, après 10 ans pour les autres groupes si l'agent n'a pas fait l'objet d'une nouvelle sanction. L'effacement est de droit sur demande ; l'agent est réputé n'avoir jamais été sanctionné.", kp:"Effacement sanction : 3 ans (1er groupe) ou 10 ans (autres groupes) si pas de récidive" },
+
+// ── POSITIONS STATUTAIRES ──
+{ id:'pos1', cat:'positions', q:"Quelles sont les 5 principales positions statutaires d'un fonctionnaire territorial ?", opts:["Actif, inactif, détaché, suspendu, retraité","Activité, détachement, disponibilité, congé parental, accomplissement service national","Présent, absent, détaché, suspendu, mis à disposition","Titulaire, stagiaire, contractuel, détaché, disponible"], ans:1, expl:"Les positions statutaires d'un fonctionnaire FPT sont : activité (position normale), détachement (auprès d'un autre organisme tout en conservant son grade), disponibilité (hors service, sans rémunération), congé parental, et accomplissement du service national. Chacune a des effets distincts sur la carrière.", kp:"5 positions : activité, détachement, disponibilité, congé parental, service national" },
+{ id:'pos2', cat:'positions', q:"Pendant un détachement, le fonctionnaire conserve-t-il ses droits à avancement dans sa collectivité d'origine ?", opts:["Non, l'avancement est gelé pendant toute la durée","Oui, le détachement est pris en compte pour l'avancement d'échelon","Seulement si le détachement dure moins de 2 ans","Seulement pour l'avancement d'échelon, pas le grade"], ans:1, expl:"Pendant un détachement, le fonctionnaire conserve ses droits à avancement dans son corps ou cadre d'emplois d'origine. Le temps passé en détachement est assimilé à du service effectif et pris en compte pour l'avancement d'échelon et de grade, ainsi que pour la retraite.", kp:"Détachement : avancement d'échelon et grade maintenus dans le corps d'origine" },
+{ id:'pos3', cat:'positions', q:"Qu'est-ce que la disponibilité pour convenances personnelles ?", opts:["Un congé sans solde de droit automatique","Une position hors service à la demande de l'agent, sans rémunération, accordée par l'administration sous conditions","Un congé parental étendu","Une mise en disponibilité prononcée d'office par l'administration"], ans:1, expl:"La disponibilité pour convenances personnelles est accordée par l'administration à la demande de l'agent. Elle est sans rémunération et sans cotisation retraite (sauf rachat de trimestres). Sa durée est limitée à 3 ans renouvelables, dans la limite de 10 ans sur l'ensemble de la carrière.", kp:"Disponibilité convenances personnelles : sans rémunération, max 3 ans renouvelables (10 ans total)" },
+{ id:'pos4', cat:'positions', q:"Un fonctionnaire en disponibilité pour raison de santé cotise-t-il pour sa retraite ?", opts:["Oui, la collectivité paie les cotisations à sa place","Non, la disponibilité d'office n'est pas cotisante pour la retraite","Oui, mais seulement la première année","Seulement si l'agent paie volontairement ses cotisations"], ans:1, expl:"La disponibilité d'office pour raison de santé (après épuisement des droits à CMO) n'est pas une position cotisante pour la retraite CNRACL. L'agent ne valide pas de trimestres pendant cette période, contrairement aux congés de maladie (CMO, CLM, CLD) qui sont cotisants.", kp:"Disponibilité d'office pour santé : non cotisante pour la retraite CNRACL" },
+{ id:'pos5', cat:'positions', q:"La mise à disposition d'un fonctionnaire territorial auprès d'un autre organisme se fait-elle avec ou sans remboursement ?", opts:["Toujours sans remboursement par l'organisme d'accueil","En principe avec remboursement de la rémunération par l'organisme d'accueil, sauf exceptions","Toujours avec remboursement total et intégral","Selon décision de l'assemblée délibérante de la collectivité"], ans:1, expl:"La mise à disposition doit en principe donner lieu à remboursement par l'organisme d'accueil. Des dérogations existent (associations, organismes sans but lucratif contribuant à des missions d'intérêt général). Le fonctionnaire mis à disposition continue à être géré et rémunéré par sa collectivité d'origine.", kp:"Mise à disposition : remboursement par l'organisme d'accueil (sauf dérogations légales)" },
+{ id:'pos6', cat:'positions', q:"Le congé parental suspend-il l'avancement d'échelon du fonctionnaire ?", opts:["Non, l'avancement continue normalement","Oui, le congé parental n'est pas pris en compte pour l'avancement","Oui, mais seulement au-delà de 6 mois de congé parental","Seulement pour l'avancement de grade, pas l'échelon"], ans:1, expl:"Le congé parental suspend l'avancement d'échelon : seule la moitié de sa durée est prise en compte pour l'avancement. En revanche, le congé parental est assimilé à des services effectifs pour la retraite (validation des trimestres) et pour le droit à promotion interne.", kp:"Congé parental : moitié de la durée compte pour l'avancement d'échelon" },
+
+// ── RETRAITE CNRACL (DÉTAIL) ──
+{ id:'ret1', cat:'retraite', q:"Quel est l'âge légal d'ouverture des droits à retraite pour un fonctionnaire CNRACL (réforme 2023) ?", opts:["60 ans pour tous les fonctionnaires","62 ans pour les catégories actives, 64 ans pour les sédentaires","62 ans pour tous","64 ans pour les catégories sédentaires, 59 ans pour les actives (progressif jusqu'en 2030)"], ans:3, expl:"La réforme des retraites de 2023 relève l'âge d'ouverture des droits progressivement. Pour les fonctionnaires sédentaires : 64 ans à terme. Pour les fonctionnaires en catégorie active (métiers pénibles) : 59 ans à terme. Ces âges montent progressivement par génération jusqu'en 2030.", kp:"Réforme 2023 : 64 ans (sédentaires) / 59 ans (catégorie active) à terme" },
+{ id:'ret2', cat:'retraite', q:"Qu'est-ce que la décote dans le calcul de la pension CNRACL ?", opts:["Un bonus accordé pour les longues carrières","Une réduction de la pension si l'agent part avant l'âge d'annulation de la décote avec un nombre de trimestres insuffisant","Un malus appliqué aux pensions de réversion","Une pénalité pour les départs anticipés pour invalidité"], ans:1, expl:"La décote est une réduction appliquée à la pension si l'agent part avant l'âge d'annulation de la décote (67 ans) sans avoir atteint le nombre de trimestres requis. Elle est de 1,25% par trimestre manquant, dans la limite de 20 trimestres.", kp:"Décote : 1,25% par trimestre manquant, max 20 trimestres (jusqu'à 25% de réduction)" },
+{ id:'ret3', cat:'retraite', q:"Qu'est-ce que la surcote dans le calcul de la pension CNRACL ?", opts:["Un malus pour les départs tardifs","Un coefficient réducteur si la carrière est incomplète","Un bonus de 1,25% par trimestre supplémentaire cotisé après l'âge légal et le taux plein","Une majoration automatique pour les agents ayant eu 3 enfants"], ans:2, expl:"La surcote est un bonus accordé à l'agent qui continue à travailler après avoir atteint à la fois l'âge légal de départ ET le nombre de trimestres requis pour le taux plein. Elle est de 1,25% par trimestre supplémentaire accompli au-delà de ces deux conditions.", kp:"Surcote : 1,25% par trimestre supplémentaire après âge légal + taux plein atteints" },
+{ id:'ret4', cat:'retraite', q:"Comment est calculé le montant de la pension CNRACL ?", opts:["Traitement de base × nombre d'années × 2%","Traitement brut des 6 derniers mois × (durée services / durée référence) × taux maximum (75%)","Moyenne des 5 meilleures années × taux de liquidation","Traitement indiciaire × coefficient de carrière × ancienneté"], ans:1, expl:"La pension CNRACL est calculée ainsi : traitement brut indiciaire des 6 derniers mois × (nombre de trimestres de services effectifs / nombre de trimestres requis pour le taux plein) × taux maximum de 75%. Le résultat est plafonné à 75% du traitement de référence.", kp:"Pension CNRACL : traitement 6 derniers mois × (trimestres/référence) × 75% max" },
+{ id:'ret5', cat:'retraite', q:"Qu'est-ce que le minimum garanti dans la pension CNRACL ?", opts:["Une pension minimale accordée à tous les fonctionnaires retraités","Un montant plancher assurant à l'agent une pension minimale si son calcul normal est inférieur, sous conditions de services","La pension de réversion versée au conjoint survivant","Une allocation chômage après la retraite"], ans:1, expl:"Le minimum garanti est une pension plancher : si le calcul normal de la pension donne un résultat inférieur, l'agent perçoit le minimum garanti, sous réserve d'avoir effectué au moins 2 ans de services. Son montant est indexé sur le traitement indiciaire brut de l'indice 227.", kp:"Minimum garanti : pension plancher si calcul normal insuffisant (≥ 2 ans de services requis)" },
+{ id:'ret6', cat:'retraite', q:"La retraite pour invalidité CNRACL est-elle soumise à condition d'âge ou de durée de services ?", opts:["Oui, il faut 15 ans de services minimum","Oui, l'agent doit avoir atteint 50 ans","Non, elle est accordée sans condition d'âge ni de durée de services si inaptitude définitive est reconnue","Oui, 5 ans de services minimum et avis du conseil médical"], ans:2, expl:"La retraite pour invalidité CNRACL est accordée sans condition d'âge ni de durée minimale de services, dès lors que l'inaptitude définitive à l'exercice de tout emploi est médicalement constatée et reconnue par le conseil médical en formation plénière.", kp:"Retraite invalidité CNRACL : sans condition d'âge ni de services (inaptitude définitive)" },
+
+// ── CAS PRATIQUES SUPPLÉMENTAIRES ──
+{ id:'cp26', cat:'cas-prat', q:"Un agent reçoit un blâme. Son supérieur lui dit qu'il n'a pas droit à consulter son dossier. Est-ce exact ?", opts:["Oui, la consultation du dossier n'est obligatoire que pour les 3e et 4e groupes","Non, tout agent a le droit de consulter son dossier avant toute sanction, même un blâme","Oui, pour les sanctions légères c'est facultatif","Non, mais il faut en faire la demande au moins 15 jours avant"], ans:1, expl:"Le droit de consultation du dossier est garanti avant TOUTE sanction disciplinaire, y compris l'avertissement et le blâme (1er groupe). Ce droit est absolu et ne peut être limité à certains groupes de sanctions.", kp:"Communication dossier : droit absolu avant toute sanction, même blâme" },
+{ id:'cp27', cat:'cas-prat', q:"Marie, titulaire, est mise en disponibilité pour convenances personnelles depuis 3 ans. Peut-elle renouveler ?", opts:["Oui, sans limite","Oui, dans la limite de 10 ans total sur carrière","Non, 3 ans est le maximum absolu","Seulement si elle justifie d'une raison valable"], ans:1, expl:"La disponibilité pour convenances personnelles peut être renouvelée, dans la limite de 10 ans sur l'ensemble de la carrière. Après cette durée totale, l'agent ne peut plus être mis en disponibilité pour ce motif.", kp:"Dispo convenances : renouvelable jusqu'à 10 ans total sur la carrière" },
+{ id:'cp28', cat:'cas-prat', q:"Un fonctionnaire territorial a 62 ans, 43 trimestres validés. Il veut partir à la retraite. Possible ?", opts:["Oui, il a atteint l'âge légal et peut partir librement","Non, il n'a pas le nombre de trimestres requis donc décote appliquée","Oui, mais avec décote si l'âge d'annulation de décote non atteint et trimestres insuffisants","Non, il faut attendre 64 ans obligatoirement"], ans:2, expl:"À 62 ans, l'agent peut liquider sa retraite (droits ouverts). Mais avec seulement 43 trimestres et sans avoir atteint 67 ans (âge d'annulation de la décote), la décote s'applique : 1,25% par trimestre manquant par rapport au nombre requis pour le taux plein.", kp:"Départ avant taux plein et avant 67 ans → décote 1,25% par trimestre manquant" },
+{ id:'cp29', cat:'cas-prat', q:"Paul, en détachement depuis 2 ans dans un autre organisme, veut savoir si cette période compte pour sa retraite CNRACL.", opts:["Non, seul le temps en activité directe compte","Oui, le détachement est pris en compte pour la retraite CNRACL","Seulement si l'organisme d'accueil cotise à la CNRACL","Non, il faut racheter ces trimestres"], ans:1, expl:"Le temps passé en détachement est pris en compte pour la constitution et la liquidation des droits à pension CNRACL, comme s'il avait été passé en activité dans la collectivité d'origine. Les cotisations sont versées à la CNRACL pendant le détachement.", kp:"Détachement : pris en compte pour la retraite CNRACL comme service effectif" },
+{ id:'cp30', cat:'cas-prat', q:"Un agent territorial commet une faute grave. L'administration apprend les faits 4 ans après. Peut-elle encore le sanctionner ?", opts:["Oui, il n'y a pas de prescription disciplinaire","Non, le délai de prescription de 3 ans est dépassé","Oui, seulement pour les fautes du 4e groupe","Non, mais elle peut le licencier pour insuffisance professionnelle"], ans:1, expl:"Depuis la loi de transformation de la FP de 2019, les faits fautifs ne peuvent donner lieu à sanction après un délai de 3 ans à compter de la date à laquelle l'administration a eu connaissance des faits. Avec 4 ans écoulés, la prescription est acquise.", kp:"Prescription disciplinaire 3 ans : administration informée il y a 4 ans → prescrit" },
+{ id:'cp31', cat:'cas-prat', q:"Nicolas a cotisé 175 trimestres à la CNRACL et a 63 ans. Il décide de continuer. La surcote s'applique-t-elle ?", opts:["Oui, car il a son taux plein","Non, il faut avoir atteint l'âge légal ET le taux plein simultanément","Non, la surcote commence à 65 ans","Oui, automatiquement dès 60 trimestres"], ans:1, expl:"La surcote s'applique uniquement si l'agent continue à travailler après avoir atteint à la fois l'âge légal de départ ET le nombre de trimestres requis pour le taux plein. Si Nicolas a 63 ans mais l'âge légal est 64 ans, la surcote ne s'applique pas encore même avec le taux plein atteint.", kp:"Surcote : conditions cumulatives — âge légal ET taux plein tous deux atteints" },
+{ id:'cp32', cat:'cas-prat', q:"Une agent titulaire est suspendue à titre conservatoire suite à une mise en examen. Combien de temps peut durer cette suspension ?", opts:["4 mois maximum, puis réintégration obligatoire","Illimitée si des poursuites pénales sont engagées","1 an maximum quelle que soit la situation","4 mois prorogeable indéfiniment tant que les poursuites continuent"], ans:1, expl:"La suspension conservatoire est normalement limitée à 4 mois. Mais si des poursuites pénales sont engagées, la suspension peut se prolonger jusqu'au jugement définitif sans limite de durée. L'agent conserve son traitement et ses droits pendant toute la durée de la suspension.", kp:"Suspension conservatoire : 4 mois max, SAUF poursuites pénales → illimitée jusqu'au jugement" },
+{ id:'cp33', cat:'cas-prat', q:"Isabelle, contractuelle en CDI, commet une faute professionnelle. Les mêmes 4 groupes de sanctions s'appliquent-ils ?", opts:["Oui, exactement les mêmes que pour les titulaires","Non, les contractuels relèvent d'un régime disciplinaire spécifique avec des sanctions différentes","Non, les contractuels ne peuvent être sanctionnés que par le licenciement","Oui, mais seulement les 2 premiers groupes"], ans:1, expl:"Les agents contractuels de droit public relèvent d'un régime disciplinaire spécifique. Les sanctions applicables sont différentes de celles des titulaires : avertissement, blâme, exclusion temporaire (max 6 mois), licenciement. Les 4 groupes de sanctions des titulaires ne s'appliquent pas aux contractuels.", kp:"Contractuels : régime disciplinaire propre (avertissement, blâme, exclusion max 6 mois, licenciement)" },
+{ id:'cp34', cat:'cas-prat', q:"Un fonctionnaire territorial est mis à disposition auprès d'une association. Qui le rémunère ?", opts:["L'association d'accueil directement","Sa collectivité d'origine, qui se fait rembourser par l'association en principe","L'État via une subvention spécifique","Personne, la mise à disposition est bénévole"], ans:1, expl:"En mise à disposition, le fonctionnaire continue à être rémunéré par sa collectivité d'origine. En principe, l'organisme d'accueil rembourse la collectivité. Des dérogations existent pour les associations d'utilité publique : la collectivité peut ne pas exiger de remboursement.", kp:"Mise à disposition : rémunéré par collectivité d'origine, remboursement par l'organisme d'accueil" },
+{ id:'cp35', cat:'cas-prat', q:"Léa, 58 ans, est reconnue définitivement inapte à tout emploi. Elle n'a que 30 trimestres. Peut-elle partir en retraite pour invalidité ?", opts:["Non, il faut au minimum 15 ans de services","Non, il faut avoir 60 ans minimum","Oui, la retraite pour invalidité CNRACL est accordée sans condition d'âge ni de durée de services","Oui, mais avec une pension réduite proportionnellement"], ans:2, expl:"La retraite pour invalidité CNRACL est accordée sans aucune condition d'âge ni de durée minimale de services. Dès lors que l'inaptitude définitive à tout emploi est médicalement constatée, Léa peut partir à 58 ans avec 30 trimestres seulement.", kp:"Retraite invalidité : sans condition d'âge ni de durée de services — inaptitude définitive suffit" },
 ];
 
 // ═══════════════════════════════════════════════
@@ -1388,11 +1465,114 @@ function showNav(screen){
 }
 
 function switchReviseTab(tab){
-  document.getElementById('rtab-modules').classList.toggle('active', tab==='modules');
-  document.getElementById('rtab-fiches').classList.toggle('active', tab==='fiches');
-  document.getElementById('revise-modules-panel').style.display=tab==='modules'?'block':'none';
-  document.getElementById('revise-fiches-panel').style.display=tab==='fiches'?'block':'none';
+  ['modules','fiches','synthese'].forEach(t=>{
+    document.getElementById('rtab-'+t).classList.toggle('active',tab===t);
+    document.getElementById('revise-'+t+'-panel').style.display=tab===t?'block':'none';
+  });
   if(tab==='fiches') renderBrowse();
+  if(tab==='synthese') renderSynthese();
+}
+
+const SYNTHESE_DATA = [
+  {
+    title:"🏥 Congés maladie — durées comparées",
+    rows:[
+      ["CMO Titulaire","3 mois PT + 9 mois DT","(12 mois max)","1 jour de carence"],
+      ["CMO Contractuel ≥3 ans","3 mois PT + 3 mois DT","","1 jour de carence"],
+      ["CLM Titulaire","1 an PT + 2 ans DT","(3 ans max)","Arrêté 14/03/1986"],
+      ["CLD Titulaire","3 ans PT + 2 ans DT","(5 ans max)","5 maladies limitatives"],
+      ["CITIS","Plein traitement","Jusqu'à consolidation","Frais médicaux pris en charge"],
+      ["Disponibilité d'office","Demi-traitement","Non complété","Non cotisante retraite"],
+    ],
+    cols:["Type","Rémunération","Durée","Particularité"],
+    note:"PT = Plein Traitement | DT = Demi-Traitement | CITIS = Congé pour Invalidité Temporaire Imputable au Service"
+  },
+  {
+    title:"📋 Délais clés à retenir",
+    rows:[
+      ["Transmission arrêt à employeur","48h","Art. 15 décret 87-602"],
+      ["Transmission arrêt à CPAM","48h","Art. R321-2 CSS"],
+      ["Instruction demande CITIS","10 jours","Décret 2019-301"],
+      ["Prescription disciplinaire","3 ans","Loi transfo FP 2019"],
+      ["Reconstitution droits CLM","1 an de reprise","Après CLM total"],
+      ["Suspension conservatoire","4 mois max","Sauf poursuites pénales"],
+      ["Disponibilité convenances","Max 10 ans total","Par périodes de 3 ans"],
+    ],
+    cols:["Délai","Durée","Texte de référence"],
+    note:"Tous ces délais font l'objet de questions fréquentes aux examens."
+  },
+  {
+    title:"⚖️ Conseil Médical — compétences",
+    rows:[
+      ["Formation restreinte","CMO > 6 mois, CLM, CLD, CITIS contesté","Avis consultatif"],
+      ["Formation plénière","Retraite invalidité, reclassement, mise à la retraite d'office, RQTH, MOP2","Avis consultatif"],
+    ],
+    cols:["Formation","Cas de saisine","Nature de l'avis"],
+    note:"Remplace le Comité Médical et la Commission de Réforme depuis le décret du 11 mars 2022."
+  },
+  {
+    title:"💶 RIFSEEP et maladie (réforme 2024-2025)",
+    rows:[
+      ["CMO (PT, depuis mars 2025)","90% du RIFSEEP","Suit le traitement à 90%"],
+      ["CMO (demi-traitement)","50% du RIFSEEP","Suit le traitement"],
+      ["CLM (1re année PT)","33% max du RIFSEEP","Par délibération"],
+      ["CLM (2e-3e année DT)","60% max du RIFSEEP","Par délibération"],
+      ["CITIS","100% (suit plein traitement)","Plein traitement maintenu"],
+      ["Maternité","100% maintenu","Obligatoire, L.714-6 CGFP"],
+    ],
+    cols:["Situation","RIFSEEP","Condition"],
+    note:"La réforme de février 2025 aligne le RIFSEEP sur le traitement (90%) pendant les 3 premiers mois de CMO."
+  },
+  {
+    title:"🎓 Positions statutaires — effets carrière",
+    rows:[
+      ["Activité","Normal","Plein traitement","Oui"],
+      ["Détachement","Maintenu (corps origine)","Par l'organisme accueil","Oui"],
+      ["Disponibilité volontaire","Gelé","Aucune","Non (sauf rachat)"],
+      ["Disponibilité d'office (santé)","Maintenu","Demi-traitement","Non"],
+      ["Congé parental","Moitié compte","Suspendue","Oui (trimestres)"],
+      ["CLM/CLD","Maintenu","PT puis DT","Oui"],
+    ],
+    cols:["Position","Avancement","Rémunération","Cotisation retraite"],
+    note:"La disponibilité volontaire ne cotise pas pour la retraite sauf rachat de trimestres. Le congé parental ne compte que pour moitié pour l'avancement d'échelon."
+  },
+  {
+    title:"🔄 Sanctions disciplinaires — 4 groupes",
+    rows:[
+      ["1er","Avertissement, blâme","Non (sauf si contesté)","3 ans"],
+      ["2e","Radiation tableau, abaissement échelon, exclusion 1-15 j","CAP consultée","3 ans"],
+      ["3e","Rétrogradation, exclusion 16 j à 2 ans","Oui — obligatoire","3 ans"],
+      ["4e","Mise à la retraite d'office, révocation","Oui — obligatoire","3 ans"],
+    ],
+    cols:["Groupe","Sanctions","Conseil de discipline","Prescription"],
+    note:"Effacement : 3 ans (1er groupe) ou 10 ans (autres groupes) si pas de nouvelle sanction."
+  },
+];
+
+function renderSynthese(){
+  const el=document.getElementById('synthese-content');
+  if(!el)return;
+  el.innerHTML=SYNTHESE_DATA.map((s,i)=>`
+    <div class="synth-section">
+      <div class="synth-h" onclick="toggleSynth(${i})">
+        <span>${s.title}</span>
+        <span class="synth-h-icon" id="synth-icon-${i}">▼</span>
+      </div>
+      <div class="synth-body" id="synth-body-${i}">
+        <table class="synth-table">
+          <thead><tr>${s.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <tbody>${s.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+        ${s.note?`<div class="synth-note">ℹ ${s.note}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleSynth(i){
+  const body=document.getElementById('synth-body-'+i);
+  const icon=document.getElementById('synth-icon-'+i);
+  body.classList.toggle('collapsed');
+  icon.textContent=body.classList.contains('collapsed')?'▶':'▼';
 }
 
 function renderRevise(){
@@ -1825,13 +2005,24 @@ function showQuizResult(){
       <div style="margin-top:8px;font-size:13px;color:var(--text2)">${pct>=80?'🏆 Excellent niveau !':pct>=50?'👍 Bonne progression !':'💪 Continuez les révisions !'}</div>
     </div>
     ${examReview}
-    <button class="btn-primary" style="margin-top:12px" onclick="resetAndGoHome()">⚡ Nouveau Quiz Flash</button>
+    ${examMode?`<button onclick="shareScore(${pct},${quizScore},${quizQueue.length})" style="width:100%;padding:12px;border-radius:14px;border:1.5px solid rgba(8,145,178,.3);background:rgba(8,145,178,.06);color:var(--cyan);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;">📤 Partager mon score</button>`:''}
+    <button class="btn-primary" style="margin-top:8px" onclick="resetAndGoHome()">⚡ Nouveau Quiz Flash</button>
     <button class="btn-secondary" onclick="startAll('weak')" style="background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2);color:var(--red)">🔥 Cibler mes erreurs</button>
     <button class="btn-secondary" onclick="resetAndGoHome()">Retour à l'accueil</button>
   `;
   document.getElementById('quiz-prog').style.width='100%';
   const tb=document.getElementById('exam-timer-bar');
   if(tb)tb.style.display='none';
+}
+
+function shareScore(pct, score, total){
+  const emoji=pct>=80?'🏆':pct>=60?'🎯':'💪';
+  const txt=`${emoji} Examen blanc Médecine Statutaire FPT\n${score}/${total} bonnes réponses (${pct}%)\n\nRévise sur medecine-statutaire-pwa.vercel.app`;
+  if(navigator.share){
+    navigator.share({title:'Mon score – MédStat FPT', text:txt}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(txt).then(()=>alert('Score copié dans le presse-papiers !')).catch(()=>alert(txt));
+  }
 }
 
 function resetAndGoHome(){
