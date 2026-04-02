@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MédStat FPT">
-<meta name="theme-color" content="#080D1A">
+<meta name="theme-color" content="#F8FAFC">
 <title>Médecine Statutaire FPT</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
@@ -14,26 +14,26 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #080D1A;
-  --bg2: #0D1425;
-  --bg3: #111827;
-  --card: #141B2D;
-  --card2: #1A2234;
-  --border: #1E2940;
-  --border2: #243050;
-  --cyan: #2DD4BF;
-  --cyan2: #14B8A6;
-  --cyan-dim: rgba(45,212,191,0.12);
-  --cyan-glow: rgba(45,212,191,0.25);
-  --text: #E8EDF5;
-  --text2: #94A3B8;
-  --text3: #64748B;
-  --green: #34D399;
-  --red: #F87171;
-  --orange: #FB923C;
-  --yellow: #FBBF24;
-  --purple: #A78BFA;
-  --blue: #60A5FA;
+  --bg: #F8FAFC;
+  --bg2: #FFFFFF;
+  --bg3: #F1F5F9;
+  --card: #FFFFFF;
+  --card2: #F8FAFC;
+  --border: #E2E8F0;
+  --border2: #CBD5E1;
+  --cyan: #0891B2;
+  --cyan2: #0E7490;
+  --cyan-dim: rgba(8,145,178,0.08);
+  --cyan-glow: rgba(8,145,178,0.18);
+  --text: #0F172A;
+  --text2: #475569;
+  --text3: #94A3B8;
+  --green: #059669;
+  --red: #DC2626;
+  --orange: #EA580C;
+  --yellow: #D97706;
+  --purple: #7C3AED;
+  --blue: #2563EB;
   --r: 14px;
   --r2: 20px;
 }
@@ -70,7 +70,7 @@ body{
 /* ── HEADER ── */
 .header{
   position:sticky;top:0;z-index:20;
-  background:rgba(8,13,26,.92);backdrop-filter:blur(16px);
+  background:rgba(248,250,252,.95);backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
   padding:14px 20px 12px;
   display:flex;align-items:center;justify-content:space-between;
@@ -89,7 +89,7 @@ body{
 /* ── NAV ── */
 .nav{
   position:fixed;bottom:0;left:0;right:0;z-index:30;
-  background:rgba(8,13,26,.97);backdrop-filter:blur(20px);
+  background:rgba(255,255,255,.97);backdrop-filter:blur(20px);
   border-top:1px solid var(--border);
   display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom));
 }
@@ -105,7 +105,7 @@ body{
 /* ── HOME SCREEN ── */
 .home-hero{
   padding:28px 20px 0;
-  background:linear-gradient(180deg,rgba(45,212,191,.04) 0%,transparent 100%);
+  background:linear-gradient(180deg,rgba(8,145,178,.04) 0%,transparent 100%);
 }
 .home-logo{
   width:52px;height:52px;border-radius:16px;
@@ -206,8 +206,8 @@ body{
 .flip-back{
   position:absolute;top:0;left:0;
   transform:rotateY(180deg);
-  background:linear-gradient(160deg,var(--card),rgba(45,212,191,.05));
-  border-color:rgba(45,212,191,.2);
+  background:linear-gradient(160deg,#fff,rgba(8,145,178,.04));
+  border-color:rgba(8,145,178,.2);
 }
 .flip-hint{
   font-size:10px;font-weight:600;color:var(--text3);
@@ -219,8 +219,8 @@ body{
 .flip-a{font-size:15px;font-weight:400;line-height:1.6;color:var(--text);}
 .key-point{
   margin-top:14px;padding:10px 14px;border-radius:10px;
-  background:var(--cyan-dim);border-left:3px solid var(--cyan);
-  font-size:13px;color:var(--cyan);font-family:'DM Mono',monospace;font-weight:500;
+  background:rgba(8,145,178,.07);border-left:3px solid var(--cyan);
+  font-size:13px;color:var(--cyan2);font-family:'DM Mono',monospace;font-weight:500;
 }
 .flash-actions{display:flex;gap:10px;width:100%;max-width:420px;}
 .flash-btn{
@@ -265,8 +265,8 @@ body{
 .qcm-opt.wrong .opt-idx{background:var(--red);color:#fff;}
 .qcm-opt.disabled{cursor:default;opacity:.6;}
 .qcm-expl{
-  background:linear-gradient(135deg,rgba(45,212,191,.07),rgba(8,145,178,.04));
-  border:1px solid rgba(45,212,191,.15);border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(8,145,178,.06),rgba(14,116,144,.03));
+  border:1px solid rgba(8,145,178,.15);border-radius:var(--r);
   padding:14px 16px;font-size:13px;line-height:1.55;color:var(--text2);
   display:none;
 }
@@ -329,7 +329,7 @@ body{
 .browse-item.open .browse-a{display:block;}
 .browse-kp{
   margin-top:10px;padding:8px 12px;border-radius:8px;
-  background:var(--cyan-dim);font-size:12px;color:var(--cyan);
+  background:rgba(8,145,178,.07);font-size:12px;color:var(--cyan2);
   font-family:'DM Mono',monospace;font-weight:500;
 }
 
@@ -385,7 +385,7 @@ body{
 }
 .modal-overlay.open{opacity:1;pointer-events:auto;}
 .modal-sheet{
-  width:100%;background:var(--bg2);
+  width:100%;background:#fff;
   border-radius:24px 24px 0 0;border-top:1px solid var(--border);
   padding:24px 20px max(24px,env(safe-area-inset-bottom));
   transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
@@ -1109,13 +1109,14 @@ function generateIcon(size){
   canvas.width=size;canvas.height=size;
   const ctx=canvas.getContext('2d');
   const r=size*0.2;
-  // BG gradient
-  const g=ctx.createLinearGradient(0,0,size,size);
-  g.addColorStop(0,'#0D1425');g.addColorStop(1,'#111827');
-  ctx.fillStyle=g;ctx.beginPath();
-  ctx.roundRect(0,0,size,size,r);ctx.fill();
-  // Cross icon
-  ctx.fillStyle='#2DD4BF';
+  // BG blanc
+  ctx.fillStyle='#F8FAFC';
+  ctx.beginPath();ctx.roundRect(0,0,size,size,r);ctx.fill();
+  // Bordure légère
+  ctx.strokeStyle='#E2E8F0';ctx.lineWidth=size*0.02;
+  ctx.beginPath();ctx.roundRect(size*0.01,size*0.01,size*0.98,size*0.98,r);ctx.stroke();
+  // Cross cyan
+  ctx.fillStyle='#0891B2';
   const w=size*0.12,h=size*0.42,cx=size/2,cy=size/2;
   ctx.fillRect(cx-w/2,cy-h/2,w,h);
   ctx.fillRect(cx-h/2,cy-w/2,h,w);

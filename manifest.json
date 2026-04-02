@@ -4,8 +4,8 @@
   "description": "Révision médecine statutaire et de contrôle — droits maladie Fonction Publique Territoriale",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#080D1A",
-  "theme_color": "#080D1A",
+  "background_color": "#F8FAFC",
+  "theme_color": "#F8FAFC",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
