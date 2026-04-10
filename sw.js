@@ -1,6 +1,6 @@
 // Version auto-incrémentée à chaque déploiement
 // ⚠️ NE PAS modifier manuellement — mis à jour par le script de build
-const CACHE_VERSION = 'medstat-v132958';
+const CACHE_VERSION = 'medstat-v792682';
 const CACHE_STATIC = CACHE_VERSION + '-static';
 const ASSETS = ['/manifest.json'];
 

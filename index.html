@@ -227,11 +227,12 @@ body{
 .flash-category{display:flex;align-items:center;gap:8px;}
 .flash-arena{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:0 20px;gap:20px;
+  justify-content:flex-start;padding:16px 20px 24px;gap:16px;
+  overflow-y:auto;
 }
 .flip-card{
   width:100%;max-width:420px;
-  perspective:1000px;cursor:pointer;
+  perspective:1000px;cursor:pointer;flex-shrink:0;
 }
 .flip-inner{
   position:relative;width:100%;
@@ -246,9 +247,11 @@ body{
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
   background:var(--card);
   padding:28px 22px;
+  /* Hauteur min pour que la carte ne soit pas trop petite */
+  min-height:180px;
 }
 .flip-back{
-  position:absolute;top:0;left:0;
+  position:absolute;top:0;left:0;width:100%;
   transform:rotateY(180deg);
   background:linear-gradient(160deg,var(--card),var(--cyan-dim));
   border-color:rgba(8,145,178,.2);
@@ -980,7 +983,7 @@ body{
 // ═══════════════════════════════════════════════
 // VERSION
 // ═══════════════════════════════════════════════
-const APP_VERSION = 'v2.1 · 02/04/2026 · #132958';
+const APP_VERSION = 'v2.2 · 10/04/2026 · #792682';
 const Q_COUNT = 209;
 
 // ═══════════════════════════════════════════════
@@ -1890,6 +1893,8 @@ function renderFlash(){
   else kp.style.display='none';
   const card=document.getElementById('flip-card');
   card.classList.remove('flipped');
+  const inner=document.getElementById('flip-inner');
+  if(inner)inner.style.height='';
   flashFlipped=false;
   document.getElementById('flash-tip').style.display='block';
   document.getElementById('flash-btns').style.display='none';
@@ -1898,7 +1903,12 @@ function renderFlash(){
 function flipCard(){
   if(flashFlipped)return;
   flashFlipped=true;
-  document.getElementById('flip-card').classList.add('flipped');
+  const card=document.getElementById('flip-card');
+  const inner=document.getElementById('flip-inner');
+  const back=inner.querySelector('.flip-back');
+  // Ajuster la hauteur du conteneur à la face arrière avant de flipper
+  inner.style.height=back.scrollHeight+'px';
+  card.classList.add('flipped');
   document.getElementById('flash-tip').style.display='none';
   document.getElementById('flash-btns').style.display='flex';
 }
